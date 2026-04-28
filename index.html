@@ -930,33 +930,122 @@ function doConvert(){
   document.getElementById('vd-val').textContent='ℳ '+selV.val;
   document.getElementById('vd-code').textContent=code;
   document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
-  // Generate QR as SVG inline — no library needed
-  const qrEl=document.getElementById('vd-qr');
-  qrEl.innerHTML=makeQRSvg(code,120);
+  document.getElementById('vd-qr').innerHTML=genQR(code,120);
   selV={val:0,pts:0};updateHero();renderVOpts();appTab('voucher');
 }
 
-// ── INLINE QR CODE GENERATOR ──
-// Encodes alphanumeric QR (sufficient for MGR-XXXX codes)
-function makeQRSvg(text, size){
-  // Use a URL-based QR approach via Google Charts API as primary
-  // with a pure-JS fallback pattern for offline
-  const url='https://api.qrserver.com/v1/create-qr-code/?size=120x120&data='+encodeURIComponent(text)+'&color=2D5016&bgcolor=EAF3DE&margin=1&format=svg';
-  return `<img src="${url}" width="${size}" height="${size}" style="display:block;border-radius:4px;" onerror="this.outerHTML=makeFallbackQR('${text}',${size})"/>`;
-}
-function makeFallbackQR(text, size){
-  // Simple visual placeholder if API unavailable
-  const s=size||120;
-  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
-    <rect width="${s}" height="${s}" rx="6" fill="#EAF3DE"/>
-    <rect x="8" y="8" width="30" height="30" rx="2" fill="none" stroke="#2D5016" stroke-width="3"/>
-    <rect x="14" y="14" width="18" height="18" fill="#2D5016"/>
-    <rect x="${s-38}" y="8" width="30" height="30" rx="2" fill="none" stroke="#2D5016" stroke-width="3"/>
-    <rect x="${s-32}" y="14" width="18" height="18" fill="#2D5016"/>
-    <rect x="8" y="${s-38}" width="30" height="30" rx="2" fill="none" stroke="#2D5016" stroke-width="3"/>
-    <rect x="14" y="${s-32}" width="18" height="18" fill="#2D5016"/>
-    <text x="${s/2}" y="${s/2+4}" text-anchor="middle" font-size="9" font-family="monospace" fill="#2D5016" font-weight="bold">${text}</text>
-  </svg>`;
+// ── SELF-CONTAINED QR GENERATOR (Version 2, Alphanumeric, no dependencies) ──
+function genQR(text,px){
+  // QR Version 2 alphanumeric — supports A-Z 0-9 space $ % * + - . / :
+  // Enough for MGR-XXXX (8 chars, well within v2 capacity of 25 alphanum chars)
+  const ALPHANUM='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+  const t=text.toUpperCase();
+
+  // ── 1. Encode data ──
+  let bits='';
+  // Mode indicator: alphanumeric = 0010
+  bits+='0010';
+  // Character count (9 bits for v2 alphanum)
+  bits+=t.length.toString(2).padStart(9,'0');
+  // Encode pairs
+  for(let i=0;i<t.length-1;i+=2){
+    const v=ALPHANUM.indexOf(t[i])*45+ALPHANUM.indexOf(t[i+1]);
+    bits+=v.toString(2).padStart(11,'0');
+  }
+  if(t.length%2===1){
+    bits+=ALPHANUM.indexOf(t[t.length-1]).toString(2).padStart(6,'0');
+  }
+  // Terminator
+  bits+='0000';
+  // Pad to byte boundary
+  while(bits.length%8!==0)bits+='0';
+  // Pad codewords: v2-M has 28 data codewords
+  const PAD=['11101100','00010001'];
+  let pi=0;
+  while(bits.length<28*8){bits+=PAD[pi%2];pi++;}
+
+  // ── 2. Reed-Solomon (v2-M: 16 EC codewords) ──
+  const GF_EXP=new Uint8Array(512);const GF_LOG=new Uint8Array(256);
+  let x=1;
+  for(let i=0;i<255;i++){GF_EXP[i]=x;GF_LOG[x]=i;x=x<<1;if(x&256)x^=285;x&=255;}
+  for(let i=255;i<512;i++)GF_EXP[i]=GF_EXP[i-255];
+  const gfMul=(a,b)=>a&&b?GF_EXP[(GF_LOG[a]+GF_LOG[b])%255]:0;
+  const gfPoly=[0,43,139,206,78,43,239,123,206,214,147,24,99,150,39,243,163,136];// v2-M generator
+  const data=[];
+  for(let i=0;i<bits.length;i+=8)data.push(parseInt(bits.slice(i,i+8),2));
+  const msg=[...data,...new Array(16).fill(0)];
+  for(let i=0;i<data.length;i++){
+    const c=msg[i];
+    if(c!==0)for(let j=0;j<gfPoly.length;j++)msg[i+j+1]^=gfMul(gfPoly[j],c);
+  }
+  const ec=msg.slice(data.length);
+  let all='';
+  [...data,...ec].forEach(b=>all+=b.toString(2).padStart(8,'0'));
+
+  // ── 3. Build v2 matrix (25×25) ──
+  const N=25;const M=Array.from({length:N},()=>new Array(N).fill(-1));
+  const F=Array.from({length:N},()=>new Array(N).fill(false));// function module flags
+
+  const setM=(r,c,v,func=false)=>{if(r>=0&&r<N&&c>=0&&c<N){M[r][c]=v;if(func)F[r][c]=true;}};
+
+  // Finder patterns
+  const finder=(r,c)=>{
+    for(let i=-1;i<=7;i++)for(let j=-1;j<=7;j++){
+      if(i<0||i>6||j<0||j>6)continue;
+      const v=(i===0||i===6||j===0||j===6)?1:(i>=2&&i<=4&&j>=2&&j<=4)?1:0;
+      setM(r+i,c+j,v,true);
+    }
+    // Separator
+    for(let k=-1;k<=7;k++){setM(r-1,c+k,0,true);setM(r+7,c+k,0,true);setM(r+k,c-1,0,true);setM(r+k,c+7,0,true);}
+  };
+  finder(0,0);finder(0,N-7);finder(N-7,0);
+
+  // Alignment pattern (v2: one at row 18, col 18)
+  const align=(r,c)=>{for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)setM(r+i,c+j,(i===0&&j===0)||Math.abs(i)===2||Math.abs(j)===2?1:0,true);};
+  align(18,18);
+
+  // Timing patterns
+  for(let i=8;i<N-8;i++){setM(6,i,i%2===0?1:0,true);setM(i,6,i%2===0?1:0,true);}
+
+  // Dark module
+  setM(N-8,8,1,true);
+
+  // Format info placeholders
+  const FMT=[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[7,8],[8,8],[8,7],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],
+             [8,N-1],[8,N-2],[8,N-3],[8,N-4],[8,N-5],[8,N-6],[8,N-7],[N-8,8],[N-7,8],[N-6,8],[N-5,8],[N-4,8],[N-3,8],[N-2,8],[N-1,8]];
+  FMT.forEach(([r,c])=>setM(r,c,0,true));
+
+  // ── 4. Place data bits (zigzag) ──
+  let bi=0;
+  const place=(r,c)=>{if(!F[r]||F[r][c]===undefined||F[r][c])return;M[r][c]=bi<all.length?parseInt(all[bi++]):0;};
+  let up=true;
+  for(let col=N-1;col>=0;col-=2){
+    if(col===6)col--;
+    for(let row=up?N-1:0;up?row>=0:row<N;up?row--:row++){
+      place(row,col);place(row,col-1);
+    }
+    up=!up;
+  }
+
+  // ── 5. Apply mask 0 (i+j)%2==0 ──
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!F[r][c]&&(r+c)%2===0)M[r][c]^=1;
+
+  // ── 6. Format string for mask 0, EC level M (10 = M) ──
+  // Precomputed: EC=M(10), mask=0(000) → format bits with BCH = 101010000010010
+  const fmtBits='101010000010010';
+  const fmtMask=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
+  const fmtFinal=fmtBits.split('').map((b,i)=>parseInt(b)^fmtMask[i]);
+  // Place format info
+  const fmtPos1=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
+  const fmtPos2=[[N-1,8],[N-2,8],[N-3,8],[N-4,8],[N-5,8],[N-6,8],[N-7,8],[8,N-8],[8,N-7],[8,N-6],[8,N-5],[8,N-4],[8,N-3],[8,N-2],[8,N-1]];
+  fmtFinal.forEach((v,i)=>{setM(fmtPos1[i][0],fmtPos1[i][1],v);setM(fmtPos2[i][0],fmtPos2[i][1],v);});
+
+  // ── 7. Render SVG ──
+  const cell=Math.floor(px/N);const quiet=cell;const total=N*cell+quiet*2;
+  let rects='';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(M[r][c]===1)
+    rects+=`<rect x="${quiet+c*cell}" y="${quiet+r*cell}" width="${cell}" height="${cell}"/>`;
+  return `<svg width="${total}" height="${total}" viewBox="0 0 ${total} ${total}" xmlns="http://www.w3.org/2000/svg"><rect width="${total}" height="${total}" fill="#EAF3DE" rx="6"/><g fill="#2D5016">${rects}</g></svg>`;
 }
 
 // ── QR SCANNER (zxing) ──
