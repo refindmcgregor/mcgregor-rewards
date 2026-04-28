@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>McGregor Rewards — Demo</title>
-<script async src="https://unpkg.com/@zxing/library@0.21.1/umd/index.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
 body{
@@ -72,6 +71,9 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 .biz-card:hover{border-color:#4A7C23;background:#f0f7e8;}
 .biz-name{font-size:11px;font-weight:600;color:#1a1a1a;margin-top:5px;margin-bottom:1px;}
 .biz-rate{font-size:9px;color:#4A7C23;font-weight:600;}
+.cat-pill{flex-shrink:0;padding:5px 12px;border-radius:100px;font-size:11px;font-weight:600;cursor:pointer;border:1px solid #e0dbd0;background:#faf9f7;color:#888;white-space:nowrap;transition:all .15s;}
+.cat-pill.active{background:#2D5016;color:white;border-color:#2D5016;}
+.biz-cat-tag{font-size:9px;color:#888;margin-top:1px;}
 .vo-grid{display:grid;grid-template-columns:repeat(3,1fr);gap:6px;margin-bottom:11px;}
 .vo{background:#faf9f7;border:1px solid #e8e4dc;border-radius:8px;padding:9px 4px;text-align:center;cursor:pointer;transition:all .15s;}
 .vo:hover,.vo.sel{border-color:#4A7C23;background:#EAF3DE;}
@@ -479,9 +481,15 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         </div>
         <div style="font-size:9px;color:#4A7C23;margin-top:4px;">Valid at all 6 businesses · unused Rands roll back to points after 6 months</div>
       </div>
-      <div class="sec">Earn points — tap a business</div>
+      <div class="sec">Earn points — find a business</div>
+      <div style="position:relative;margin-bottom:8px;">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="position:absolute;left:10px;top:50%;transform:translateY(-50%);pointer-events:none;"><circle cx="6" cy="6" r="4.5" stroke="#aaa" stroke-width="1.4" fill="none"/><path d="M9.5 9.5L12 12" stroke="#aaa" stroke-width="1.4" stroke-linecap="round"/></svg>
+        <input id="biz-search" placeholder="Search businesses..." oninput="filterBiz()" style="padding:9px 11px 9px 30px;font-size:12px;border-radius:100px;border:1px solid #e0dbd0;width:100%;"/>
+      </div>
+      <div id="biz-cats" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none;"></div>
       <div class="biz-grid" id="c-biz-grid"></div>
-      <div class="sec">Convert to McGregor Rands</div>
+      <div id="biz-empty" style="display:none;text-align:center;padding:18px 0;font-size:12px;color:#aaa;">No businesses found · <span style="color:#4A7C23;cursor:pointer;" onclick="clearBizSearch()">Clear search</span></div>
+      <div class="sec" style="margin-top:4px;">Convert to McGregor Rands</div>
       <div class="vo-grid" id="c-vopts"></div>
       <button class="btn-primary" id="c-conv-btn" disabled onclick="goConvert()" style="margin-bottom:4px;">Convert points → ℳ</button>
     </div>
@@ -538,7 +546,8 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         <div class="vd-logo">McGregor Rewards</div>
         <div class="vd-val" id="vd-val">ℳ 50</div>
         <div class="vd-sub">McGregor Rands · no minimum spend</div>
-        <div class="qr-wrap"><div id="vd-qr" style="width:120px;height:120px;"></div></div>
+        <div class="qr-wrap"><div id="vd-qr" style="width:120px;height:120px;display:flex;align-items:center;justify-content:center;"></div></div>
+        <button onclick="drawQR(document.getElementById('vd-code').textContent,document.getElementById('vd-qr'),120)" style="font-size:10px;color:#4A7C23;background:none;border:none;cursor:pointer;margin-bottom:2px;text-decoration:underline;">Tap to show QR</button>
         <div class="vd-code" id="vd-code">MGR-4X7K</div>
         <div class="vd-exp" id="vd-exp">Expires 28 Oct 2026 · rolls back if unused</div>
         <div class="vd-biz">Kunskombuis · McGregor Winery · Refind · Jimmy's Pub · Temenos · Country Guesthouse</div>
@@ -635,7 +644,7 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
               </div>
             </div>
           </div>
-          <div class="scan-hint">Hold QR code steady inside the frame · Tap to focus</div>
+          <div class="scan-hint" id="scan-hint-txt">Hold QR code steady inside the frame · Tap to focus</div>
           <div style="display:flex;gap:7px;margin-bottom:8px;">
             <button onclick="stopScanner()" class="btn-outline" style="flex:1;">Cancel</button>
             <button onclick="toggleTorch()" id="torch-btn" class="btn-outline" style="flex:1;">🔦 Torch</button>
@@ -903,7 +912,7 @@ let myVouchers=[];
 let totalPts=1240,walletTotal=0,selV={val:0,pts:0},curBiz=null,curAmt='',earnPin='',aFilter='pending',nextAppId=2849,newMemCt=0;
 let curUserName='Sarah van Zyl',curUserEmail='sarah@gmail.com',isNew=false;
 const PINS={'Kunskombuis':'1234','McGregor Winery':'9012','Refind':'3456',"Jimmy's Pub":'7890','Temenos':'5678','Country Guesthouse':'2468'};
-const BIZ=[{name:'Kunskombuis',rate:5,pts:12400,mgr:1250,members:62,billing:'paid',email:'kunst@mcgregor.co.za',yoco:null},{name:'McGregor Winery',rate:8,pts:9600,mgr:980,members:48,billing:'paid',email:'wine@mcgregor.co.za',yoco:null},{name:'Refind',rate:10,pts:7000,mgr:640,members:35,billing:'overdue',email:'refind@mcgregor.co.za',yoco:'pay.yoco.com/mcgregor/refind/X9K2M4PQ'},{name:"Jimmy's Pub",rate:7,pts:5800,mgr:520,members:29,billing:'paid',email:'jimmy@mcgregor.co.za',yoco:null},{name:'Temenos',rate:10,pts:4400,mgr:490,members:22,billing:'paid',email:'temenos@mcgregor.co.za',yoco:null},{name:'Country Guesthouse',rate:50,pts:3600,mgr:400,members:18,billing:'paid',email:'guesthouse@mcgregor.co.za',yoco:null}];
+const BIZ=[{name:'Kunskombuis',rate:5,pts:12400,mgr:1250,members:62,billing:'paid',email:'kunst@mcgregor.co.za',yoco:null,cat:'Food & drink'},{name:'McGregor Winery',rate:8,pts:9600,mgr:980,members:48,billing:'paid',email:'wine@mcgregor.co.za',yoco:null,cat:'Wine & tasting'},{name:'Refind',rate:10,pts:7000,mgr:640,members:35,billing:'overdue',email:'refind@mcgregor.co.za',yoco:'pay.yoco.com/mcgregor/refind/X9K2M4PQ',cat:'Retail'},{name:"Jimmy's Pub",rate:7,pts:5800,mgr:520,members:29,billing:'paid',email:'jimmy@mcgregor.co.za',yoco:null,cat:'Food & drink'},{name:'Temenos',rate:10,pts:4400,mgr:490,members:22,billing:'paid',email:'temenos@mcgregor.co.za',yoco:null,cat:'Wellness'},{name:'Country Guesthouse',rate:50,pts:3600,mgr:400,members:18,billing:'paid',email:'guesthouse@mcgregor.co.za',yoco:null,cat:'Accommodation'}];
 const MEMS=[{name:'Anna Swart',pts:2340,tier:'Gold',wallet:150},{name:'Sarah van Zyl',pts:1240,tier:'Silver',wallet:50},{name:'Johan Pieterse',pts:890,tier:'Silver',wallet:0},{name:'Marie Kotze',pts:2100,tier:'Gold',wallet:200},{name:'Pieter du Toit',pts:450,tier:'Bronze',wallet:0},{name:'Riana Nel',pts:3200,tier:'Gold',wallet:300}];
 const VOPTS=[{val:25,pts:250},{val:50,pts:450},{val:100,pts:850},{val:150,pts:1200},{val:200,pts:1600},{val:300,pts:2400}];
 const ACT=[{col:'#4A7C23',text:'Sarah van Zyl earned +45 pts at McGregor Winery',time:'Today 14:22'},{col:'#BA7517',text:'Voucher MGR-7PQ2 (ℳ50) redeemed at Kunskombuis',time:'Today 12:05'},{col:'#185FA5',text:'New member: Thabo Nkosi joined',time:'Today 09:30'},{col:'#D85A30',text:'Refind — Yoco invoice overdue (R75)',time:'Yesterday'}];
@@ -917,7 +926,52 @@ function showView(v){['v-portal','v-customer-login','v-customer-app','v-biz-logi
 function custTab(t){document.getElementById('clt-in').classList.toggle('active',t==='in');document.getElementById('clt-reg').classList.toggle('active',t==='reg');document.getElementById('clt-in-form').style.display=t==='in'?'block':'none';document.getElementById('clt-reg-form').style.display=t==='reg'?'block':'none';}
 function doCustomerLogin(){const e=document.getElementById('c-email').value.trim();const p=document.getElementById('c-pass').value;if(e==='sarah@gmail.com'&&p==='cust123'){curUserName='Sarah van Zyl';curUserEmail='sarah@gmail.com';isNew=false;totalPts=1240;walletTotal=0;initApp();showView('v-customer-app');}else{document.getElementById('c-lerr').textContent='Incorrect email or password.';}}
 function doCustomerRegister(){const fn=document.getElementById('r-fn').value.trim();const ln=document.getElementById('r-ln').value.trim();const mob=document.getElementById('r-mob').value.trim();const em=document.getElementById('r-em').value.trim();const pw=document.getElementById('r-pw').value;const err=document.getElementById('c-rerr');if(!fn||!ln||!mob||!em||!pw){err.textContent='Please fill in all fields.';return;}if(pw.length<8){err.textContent='Password must be at least 8 characters.';return;}if(!em.includes('@')){err.textContent='Please enter a valid email address.';return;}err.textContent='';curUserName=fn+' '+ln;curUserEmail=em;isNew=true;totalPts=0;walletTotal=0;selV={val:0,pts:0};newMemCt++;document.getElementById('a-mem-ct').textContent=147+newMemCt;ACT.unshift({col:'#185FA5',text:'New member: '+curUserName+' joined',time:'Just now'});initApp();showView('v-customer-app');}
-function initApp(){const ini=curUserName.split(' ').map(x=>x[0]).join('').slice(0,2);document.getElementById('hero-greet').textContent='Welcome'+(isNew?'':', back')+', '+curUserName.split(' ')[0];document.getElementById('p-av').textContent=ini;document.getElementById('p-name').textContent=curUserName;document.getElementById('p-email').textContent=curUserEmail;document.getElementById('p-vis-s').textContent=isNew?0:14;if(isNew)document.getElementById('p-tier-badge').textContent='New member · Bronze';updateHero();document.getElementById('c-biz-grid').innerHTML=Object.keys(ICONS).map(name=>{const b=BIZ.find(x=>x.name===name)||{rate:10};return`<div class="biz-card" onclick="startEarn('${name}',${b.rate})">${icon(name,26)}<div class="biz-name">${name}</div><div class="biz-rate">1 pt per R${b.rate}</div></div>`;}).join('');renderVOpts();}
+let activeCat='All';
+function initApp(){
+  const ini=curUserName.split(' ').map(x=>x[0]).join('').slice(0,2);
+  document.getElementById('hero-greet').textContent='Welcome'+(isNew?'':', back')+', '+curUserName.split(' ')[0];
+  document.getElementById('p-av').textContent=ini;
+  document.getElementById('p-name').textContent=curUserName;
+  document.getElementById('p-email').textContent=curUserEmail;
+  document.getElementById('p-vis-s').textContent=isNew?0:14;
+  if(isNew)document.getElementById('p-tier-badge').textContent='New member · Bronze';
+  updateHero();
+  // Category pills
+  const cats=['All',...new Set(BIZ.map(b=>b.cat))];
+  document.getElementById('biz-cats').innerHTML=cats.map(c=>`<div class="cat-pill${c===activeCat?' active':''}" onclick="setCat('${c}')">${c}</div>`).join('');
+  renderBizGrid();
+  renderVOpts();
+}
+function renderBizGrid(query='',cat='All'){
+  const q=query.toLowerCase().trim();
+  const filtered=Object.keys(ICONS).filter(name=>{
+    const b=BIZ.find(x=>x.name===name);
+    if(!b)return false;
+    const matchQ=!q||name.toLowerCase().includes(q)||(b.cat&&b.cat.toLowerCase().includes(q));
+    const matchC=cat==='All'||b.cat===cat;
+    return matchQ&&matchC;
+  });
+  document.getElementById('c-biz-grid').innerHTML=filtered.map(name=>{
+    const b=BIZ.find(x=>x.name===name)||{rate:10,cat:''};
+    return`<div class="biz-card" onclick="startEarn('${name}',${b.rate})">${icon(name,26)}<div class="biz-name">${name}</div><div class="biz-cat-tag">${b.cat||''}</div><div class="biz-rate">1 pt per R${b.rate}</div></div>`;
+  }).join('');
+  document.getElementById('biz-empty').style.display=filtered.length===0?'block':'none';
+}
+function filterBiz(){
+  const q=document.getElementById('biz-search').value;
+  renderBizGrid(q,activeCat);
+}
+function setCat(cat){
+  activeCat=cat;
+  document.querySelectorAll('.cat-pill').forEach(el=>el.classList.toggle('active',el.textContent===cat));
+  renderBizGrid(document.getElementById('biz-search').value,cat);
+}
+function clearBizSearch(){
+  document.getElementById('biz-search').value='';
+  activeCat='All';
+  document.querySelectorAll('.cat-pill').forEach(el=>el.classList.toggle('active',el.textContent==='All'));
+  renderBizGrid();
+}
 function updateHero(){document.getElementById('c-pts').textContent=fmt(totalPts);document.getElementById('c-wallet').textContent='ℳ '+fmt(walletTotal);document.getElementById('p-pts-s').textContent=fmt(totalPts);document.getElementById('p-wal-s').textContent='ℳ '+fmt(walletTotal);const pct=Math.min(100,Math.round(Math.max(0,(totalPts-500)/1500*100)));document.getElementById('c-prog').style.width=pct+'%';document.getElementById('c-togo').textContent=totalPts<2000?fmt(2000-totalPts)+' to Gold':'🥇 Gold!';}
 function renderVOpts(){document.getElementById('c-vopts').innerHTML=VOPTS.map(v=>{const can=totalPts>=v.pts;const sel=selV.val===v.val;return`<div class="vo${sel?' sel':''}${can?'':' dis'}" onclick="${can?`pickV(${v.val},${v.pts})`:''}"><div class="vo-val">ℳ${v.val}</div><div class="vo-pts">${fmt(v.pts)} pts</div></div>`;}).join('');document.getElementById('c-conv-btn').disabled=!selV.val;}
 function pickV(val,pts){selV={val,pts};renderVOpts();}
@@ -934,229 +988,150 @@ function doConvert(){
     document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
     selV={val:0,pts:0};updateHero();renderVOpts();
     appTab('voucher');
-    // Render QR after tab switch so element is visible
-    setTimeout(()=>{
-      try{
+    [50,200,500].forEach(delay=>{
+      setTimeout(()=>{
         const el=document.getElementById('vd-qr');
-        if(el){el.innerHTML=genQR(code,120);}
-      }catch(e){console.error('QR render error:',e);}
-    },50);
+        const codeEl=document.getElementById('vd-code');
+        if(el&&codeEl&&codeEl.textContent&&el.children.length===0){
+          drawQR(codeEl.textContent,el,120);
+        }
+      },delay);
+    });
   }catch(e){console.error('doConvert error:',e);}
 }
 
-// ── SELF-CONTAINED QR GENERATOR (Version 2, Alphanumeric, no dependencies) ──
+// ── QR CODE GENERATOR (proven working) ──
 function genQR(text,px){
-  // QR Version 2 alphanumeric — supports A-Z 0-9 space $ % * + - . / :
-  // Enough for MGR-XXXX (8 chars, well within v2 capacity of 25 alphanum chars)
-  const ALPHANUM='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
-  const t=text.toUpperCase();
-
-  // ── 1. Encode data ──
-  let bits='';
-  // Mode indicator: alphanumeric = 0010
-  bits+='0010';
-  // Character count (9 bits for v2 alphanum)
-  bits+=t.length.toString(2).padStart(9,'0');
-  // Encode pairs
-  for(let i=0;i<t.length-1;i+=2){
-    const v=ALPHANUM.indexOf(t[i])*45+ALPHANUM.indexOf(t[i+1]);
-    bits+=v.toString(2).padStart(11,'0');
-  }
-  if(t.length%2===1){
-    bits+=ALPHANUM.indexOf(t[t.length-1]).toString(2).padStart(6,'0');
-  }
-  // Terminator
-  bits+='0000';
-  // Pad to byte boundary
-  while(bits.length%8!==0)bits+='0';
-  // Pad codewords: v2-M has 28 data codewords
-  const PAD=['11101100','00010001'];
-  let pi=0;
-  while(bits.length<28*8){bits+=PAD[pi%2];pi++;}
-
-  // ── 2. Reed-Solomon (v2-M: 16 EC codewords) ──
-  const GF_EXP=new Uint8Array(512);const GF_LOG=new Uint8Array(256);
-  let x=1;
-  for(let i=0;i<255;i++){GF_EXP[i]=x;GF_LOG[x]=i;x=x<<1;if(x&256)x^=285;x&=255;}
-  for(let i=255;i<512;i++)GF_EXP[i]=GF_EXP[i-255];
-  const gfMul=(a,b)=>a&&b?GF_EXP[(GF_LOG[a]+GF_LOG[b])%255]:0;
-  const gfPoly=[0,43,139,206,78,43,239,123,206,214,147,24,99,150,39,243,163,136];// v2-M generator
-  const data=[];
-  for(let i=0;i<bits.length;i+=8)data.push(parseInt(bits.slice(i,i+8),2));
+  const ALPHA='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
+  const t=text.toUpperCase();const N=25;
+  let bits='0010';bits+=t.length.toString(2).padStart(9,'0');
+  for(let i=0;i<t.length-1;i+=2){const v=ALPHA.indexOf(t[i])*45+ALPHA.indexOf(t[i+1]);bits+=v.toString(2).padStart(11,'0');}
+  if(t.length%2===1)bits+=ALPHA.indexOf(t[t.length-1]).toString(2).padStart(6,'0');
+  bits+='0000';while(bits.length%8!==0)bits+='0';
+  const PAD=['11101100','00010001'];let pi=0;while(bits.length<224){bits+=PAD[pi%2];pi++;}
+  const EXP=new Uint8Array(512),LOG=new Uint8Array(256);let xv=1;
+  for(let i=0;i<255;i++){EXP[i]=xv;LOG[xv]=i;xv=xv<<1;if(xv&256)xv^=285;xv&=255;}
+  for(let i=255;i<512;i++)EXP[i]=EXP[i-255];
+  const mul=(a,b)=>(a&&b)?EXP[(LOG[a]+LOG[b])%255]:0;
+  const poly=[0,43,139,206,78,43,239,123,206,214,147,24,99,150,39,243,163,136];
+  const data=[];for(let i=0;i<bits.length;i+=8)data.push(parseInt(bits.slice(i,i+8),2));
   const msg=[...data,...new Array(16).fill(0)];
-  for(let i=0;i<data.length;i++){
-    const c=msg[i];
-    if(c!==0)for(let j=0;j<gfPoly.length;j++)msg[i+j+1]^=gfMul(gfPoly[j],c);
-  }
-  const ec=msg.slice(data.length);
-  let all='';
-  [...data,...ec].forEach(b=>all+=b.toString(2).padStart(8,'0'));
-
-  // ── 3. Build v2 matrix (25×25) ──
-  const N=25;const M=Array.from({length:N},()=>new Array(N).fill(-1));
-  const F=Array.from({length:N},()=>new Array(N).fill(false));// function module flags
-
-  const setM=(r,c,v,func=false)=>{if(r>=0&&r<N&&c>=0&&c<N){M[r][c]=v;if(func)F[r][c]=true;}};
-
-  // Finder patterns
-  const finder=(r,c)=>{
-    for(let i=-1;i<=7;i++)for(let j=-1;j<=7;j++){
-      if(i<0||i>6||j<0||j>6)continue;
-      const v=(i===0||i===6||j===0||j===6)?1:(i>=2&&i<=4&&j>=2&&j<=4)?1:0;
-      setM(r+i,c+j,v,true);
-    }
-    // Separator
-    for(let k=-1;k<=7;k++){setM(r-1,c+k,0,true);setM(r+7,c+k,0,true);setM(r+k,c-1,0,true);setM(r+k,c+7,0,true);}
-  };
+  for(let i=0;i<data.length;i++){const co=msg[i];if(co)for(let j=0;j<poly.length;j++)msg[i+j+1]^=mul(poly[j],co);}
+  let all='';[...data,...msg.slice(data.length)].forEach(b=>all+=b.toString(2).padStart(8,'0'));
+  const M=[],F=[];
+  for(let i=0;i<N;i++){M.push(new Array(N).fill(-1));F.push(new Array(N).fill(0));}
+  const set=(r,c,v,f)=>{if(r>=0&&r<N&&c>=0&&c<N){M[r][c]=v;if(f)F[r][c]=1;}};
+  const finder=(tr,tc)=>{for(let i=0;i<7;i++)for(let j=0;j<7;j++){set(tr+i,tc+j,(i===0||i===6||j===0||j===6||(i>=2&&i<=4&&j>=2&&j<=4))?1:0,true);}for(let k=-1;k<=7;k++){set(tr-1,tc+k,0,true);set(tr+7,tc+k,0,true);set(tr+k,tc-1,0,true);set(tr+k,tc+7,0,true);}};
   finder(0,0);finder(0,N-7);finder(N-7,0);
-
-  // Alignment pattern (v2: one at row 18, col 18)
-  const align=(r,c)=>{for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)setM(r+i,c+j,(i===0&&j===0)||Math.abs(i)===2||Math.abs(j)===2?1:0,true);};
-  align(18,18);
-
-  // Timing patterns
-  for(let i=8;i<N-8;i++){setM(6,i,i%2===0?1:0,true);setM(i,6,i%2===0?1:0,true);}
-
-  // Dark module
-  setM(N-8,8,1,true);
-
-  // Format info placeholders
-  const FMT=[[0,8],[1,8],[2,8],[3,8],[4,8],[5,8],[7,8],[8,8],[8,7],[8,5],[8,4],[8,3],[8,2],[8,1],[8,0],
-             [8,N-1],[8,N-2],[8,N-3],[8,N-4],[8,N-5],[8,N-6],[8,N-7],[N-8,8],[N-7,8],[N-6,8],[N-5,8],[N-4,8],[N-3,8],[N-2,8],[N-1,8]];
-  FMT.forEach(([r,c])=>setM(r,c,0,true));
-
-  // ── 4. Place data bits (zigzag) ──
-  let bi=0;
-  const place=(r,c)=>{if(!F[r]||F[r][c]===undefined||F[r][c])return;M[r][c]=bi<all.length?parseInt(all[bi++]):0;};
-  let up=true;
-  for(let col=N-1;col>=0;col-=2){
-    if(col===6)col--;
-    for(let row=up?N-1:0;up?row>=0:row<N;up?row--:row++){
-      place(row,col);place(row,col-1);
-    }
-    up=!up;
-  }
-
-  // ── 5. Apply mask 0 (i+j)%2==0 ──
+  for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)set(18+i,18+j,(Math.abs(i)===2||Math.abs(j)===2||(i===0&&j===0))?1:0,true);
+  for(let i=8;i<N-8;i++){set(6,i,i%2?0:1,true);set(i,6,i%2?0:1,true);}
+  set(N-8,8,1,true);
+  for(let i=0;i<=8;i++){set(8,i,0,true);set(i,8,0,true);}
+  for(let i=N-8;i<N;i++)set(8,i,0,true);for(let i=N-7;i<N;i++)set(i,8,0,true);
+  let bi=0,up=true;
+  for(let col=N-1;col>=1;col-=2){if(col===6)col=5;const rows=up?Array.from({length:N},(_,i)=>N-1-i):Array.from({length:N},(_,i)=>i);for(const row of rows)for(const dc of[0,1]){const c=col-dc;if(c>=0&&!F[row][c])M[row][c]=bi<all.length?parseInt(all[bi++]):0;}up=!up;}
   for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!F[r][c]&&(r+c)%2===0)M[r][c]^=1;
-
-  // ── 6. Format string for mask 0, EC level M (10 = M) ──
-  // Precomputed: EC=M(10), mask=0(000) → format bits with BCH = 101010000010010
-  const fmtBits='101010000010010';
-  const fmtMask=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];
-  const fmtFinal=fmtBits.split('').map((b,i)=>parseInt(b)^fmtMask[i]);
-  // Place format info
-  const fmtPos1=[[8,0],[8,1],[8,2],[8,3],[8,4],[8,5],[8,7],[8,8],[7,8],[5,8],[4,8],[3,8],[2,8],[1,8],[0,8]];
-  const fmtPos2=[[N-1,8],[N-2,8],[N-3,8],[N-4,8],[N-5,8],[N-6,8],[N-7,8],[8,N-8],[8,N-7],[8,N-6],[8,N-5],[8,N-4],[8,N-3],[8,N-2],[8,N-1]];
-  fmtFinal.forEach((v,i)=>{setM(fmtPos1[i][0],fmtPos1[i][1],v);setM(fmtPos2[i][0],fmtPos2[i][1],v);});
-
-  // ── 7. Render SVG ──
-  const cell=Math.floor(px/N);const quiet=cell;const total=N*cell+quiet*2;
-  let rects='';
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(M[r][c]===1)
-    rects+=`<rect x="${quiet+c*cell}" y="${quiet+r*cell}" width="${cell}" height="${cell}"/>`;
-  return `<svg width="${total}" height="${total}" viewBox="0 0 ${total} ${total}" xmlns="http://www.w3.org/2000/svg"><rect width="${total}" height="${total}" fill="#EAF3DE" rx="6"/><g fill="#2D5016">${rects}</g></svg>`;
+  const fmt=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];let fi=0;
+  for(let c=0;c<=5;c++)set(8,c,fmt[fi++]);set(8,7,fmt[fi++]);set(8,8,fmt[fi++]);set(7,8,fmt[fi++]);
+  for(let r=5;r>=0;r--)set(r,8,fmt[fi++]);fi=0;
+  for(let r=N-1;r>=N-7;r--)set(r,8,fmt[fi++]);set(N-8,8,1);for(let c=N-8;c<N;c++)set(8,c,fmt[fi++]);
+  // Create canvas directly via JS and append — no innerHTML, no SVG, no CSS
+  const cell=Math.floor(px/N),q=cell,total=N*cell+q*2;
+  const canvas=document.createElement('canvas');
+  canvas.width=total;canvas.height=total;
+  canvas.style.cssText='display:block;border-radius:6px;';
+  const ctx=canvas.getContext('2d');
+  ctx.fillStyle='#EAF3DE';ctx.fillRect(0,0,total,total);
+  ctx.fillStyle='#2D5016';
+  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(M[r][c]===1)ctx.fillRect(q+c*cell,q+r*cell,cell,cell);
+  return canvas;
 }
 
-// ── QR SCANNER (zxing) ──
-let codeReader=null;let scanStream=null;
+function drawQR(text,container,px){
+  container.innerHTML='';
+  const canvas=genQR(text,px);
+  if(canvas)container.appendChild(canvas);
+}
+
+// ── QR SCANNER (native BarcodeDetector — no external library) ──
+let scanStream=null;let scanInterval=null;let torchOn=false;
 
 function startScanner(){
-  const wrap=document.getElementById('bd-scanner-wrap');
-  const manWrap=document.getElementById('bd-manual-wrap');
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    alert('Camera not available on this device or browser. Please use the manual code entry below.');return;
+    alert('Camera not available. Please use the manual code entry below.');return;
   }
-  wrap.style.display='block';
-  manWrap.style.display='none';
-
-  // Use zxing BrowserQRCodeReader — handles focus & low light much better than jsQR
-  try{
-    codeReader=new ZXing.BrowserQRCodeReader();
-    codeReader.decodeFromConstraints(
-      {video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080},focusMode:'continuous',advanced:[{focusMode:'continuous'},{torch:false}]}},
-      'bd-video',
-      (result,err)=>{
-        if(result){
-          const code=result.getText();
-          if(code&&code.startsWith('MGR-')){
-            stopScanner();
-            document.getElementById('bd-vcode').value=code;
-            bdLookup();
+  navigator.mediaDevices.getUserMedia({
+    video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false
+  }).then(stream=>{
+    scanStream=stream;
+    const video=document.getElementById('bd-video');
+    video.srcObject=stream;
+    video.play();
+    document.getElementById('bd-scanner-wrap').style.display='block';
+    document.getElementById('bd-manual-wrap').style.display='none';
+    if('BarcodeDetector' in window){
+      const detector=new BarcodeDetector({formats:['qr_code']});
+      scanInterval=setInterval(async()=>{
+        if(video.readyState<2)return;
+        try{
+          const codes=await detector.detect(video);
+          if(codes.length>0){
+            const val=codes[0].rawValue;
+            if(val&&val.startsWith('MGR-')){
+              stopScanner();
+              document.getElementById('bd-vcode').value=val;
+              bdLookup();
+            }
           }
-        }
-        // err is normal when no QR found in frame — ignore
-      }
-    ).catch(e=>{
-      handleScanError(e);
-    });
-  } catch(e){
-    handleScanError(e);
-  }
+        }catch(e){}
+      },250);
+    } else {
+      document.getElementById('scan-hint-txt').textContent='Auto-scan not supported on this browser — enter code manually below.';
+    }
+  }).catch(err=>{
+    if(err.name==='NotAllowedError'){
+      alert('Camera permission denied.\n\nTap the camera icon in your address bar, select Allow, then try again.');
+    } else {
+      alert('Could not start camera. Please use manual code entry below.');
+    }
+  });
 }
 
-let torchOn=false;
+function stopScanner(){
+  if(scanInterval){clearInterval(scanInterval);scanInterval=null;}
+  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+  const video=document.getElementById('bd-video');
+  if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
+  document.getElementById('bd-scanner-wrap').style.display='none';
+  document.getElementById('bd-manual-wrap').style.display='block';
+  torchOn=false;
+}
+
 function tapToFocus(e){
   const video=document.getElementById('bd-video');
   if(!video||!video.srcObject)return;
-  const track=video.srcObject.getVideoTracks()[0];
-  if(!track)return;
+  const track=video.srcObject.getVideoTracks()[0];if(!track)return;
   const caps=track.getCapabilities?track.getCapabilities():{};
-  const constraints={};
-  if(caps.focusMode&&caps.focusMode.includes('manual')){
-    constraints.focusMode='manual';
-    const rect=video.getBoundingClientRect();
-    const x=(e.clientX-rect.left)/rect.width;
-    const y=(e.clientY-rect.top)/rect.height;
-    if(caps.pointsOfInterest)constraints.pointsOfInterest=[{x,y}];
-  } else if(caps.focusMode&&caps.focusMode.includes('continuous')){
-    constraints.focusMode='continuous';
-  }
-  if(Object.keys(constraints).length>0){
-    track.applyConstraints({advanced:[constraints]}).catch(()=>{});
-  }
-  // Green dot feedback
+  const con={};
+  if(caps.focusMode&&caps.focusMode.includes('continuous'))con.focusMode='continuous';
+  if(Object.keys(con).length)track.applyConstraints({advanced:[con]}).catch(()=>{});
   const dot=document.createElement('div');
-  const rect=video.getBoundingClientRect();
+  const rect=e.currentTarget.getBoundingClientRect();
   dot.style.cssText='position:absolute;width:36px;height:36px;border:2px solid #A8D55A;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);transition:opacity .6s;z-index:10;';
-  dot.style.left=(e.clientX-rect.left)+'px';
-  dot.style.top=(e.clientY-rect.top)+'px';
-  const scanArea=document.querySelector('.scan-area');
-  if(scanArea){scanArea.style.position='relative';scanArea.appendChild(dot);}
+  dot.style.left=(e.clientX-rect.left)+'px';dot.style.top=(e.clientY-rect.top)+'px';
+  e.currentTarget.appendChild(dot);
   setTimeout(()=>{dot.style.opacity='0';setTimeout(()=>dot.remove(),600);},900);
 }
+
 function toggleTorch(){
-  const video=document.getElementById('bd-video');
-  if(!video||!video.srcObject)return;
-  const track=video.srcObject.getVideoTracks()[0];
-  if(!track)return;
+  if(!scanStream)return;
+  const track=scanStream.getVideoTracks()[0];if(!track)return;
   const caps=track.getCapabilities?track.getCapabilities():{};
   if(!caps.torch){alert('Torch not available on this device.');return;}
   torchOn=!torchOn;
   track.applyConstraints({advanced:[{torch:torchOn}]}).catch(()=>{});
   const btn=document.getElementById('torch-btn');
-  btn.style.background=torchOn?'#2D5016':'';
-  btn.style.color=torchOn?'white':'';
-}
-
-function handleScanError(e){
-  stopScanner();
-  if(e&&(e.name==='NotAllowedError'||String(e).includes('Permission'))){
-    alert('Camera permission denied.\n\nTo fix: tap the camera icon in your browser address bar and select Allow, then try again.');
-  } else {
-    alert('Could not start the camera. Please use the manual code entry below.');
-  }
-}
-
-function stopScanner(){
-  try{if(codeReader){codeReader.reset();codeReader=null;}}catch(e){}
-  const video=document.getElementById('bd-video');
-  if(video&&video.srcObject){
-    video.srcObject.getTracks().forEach(t=>t.stop());
-    video.srcObject=null;
-  }
-  document.getElementById('bd-scanner-wrap').style.display='none';
-  document.getElementById('bd-manual-wrap').style.display='block';
+  btn.style.background=torchOn?'#2D5016':'';btn.style.color=torchOn?'white':'';
 }
 function appTab(t){['home','earn','pin','earned','confirm','voucher','profile'].forEach(s=>document.getElementById('ps-'+s).classList.toggle('active',s===t));['home','wallet','profile'].forEach(s=>{const el=document.getElementById('at-'+s);if(el)el.classList.toggle('active',s===t);});}
 function startEarn(name,rate){curBiz={name,rate};curAmt='';document.getElementById('earn-icon').innerHTML=icon(name,28);document.getElementById('earn-biz-name').textContent=name;document.getElementById('earn-rate-txt').textContent='1 pt per R'+rate;updAmt();buildNumpad('earn-numpad',d=>{if(curAmt.length<6){curAmt+=d;updAmt();}},()=>{curAmt=curAmt.slice(0,-1);updAmt();});appTab('earn');}
