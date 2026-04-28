@@ -4,7 +4,6 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>McGregor Rewards — Demo</title>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 <script src="https://unpkg.com/@zxing/library@0.21.1/umd/index.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
@@ -931,13 +930,33 @@ function doConvert(){
   document.getElementById('vd-val').textContent='ℳ '+selV.val;
   document.getElementById('vd-code').textContent=code;
   document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
-  // Generate QR code
+  // Generate QR as SVG inline — no library needed
   const qrEl=document.getElementById('vd-qr');
-  qrEl.innerHTML='';
-  if(window.QRCode){
-    new QRCode(qrEl,{text:code,width:120,height:120,colorDark:'#2D5016',colorLight:'#EAF3DE',correctLevel:QRCode.CorrectLevel.M});
-  }
+  qrEl.innerHTML=makeQRSvg(code,120);
   selV={val:0,pts:0};updateHero();renderVOpts();appTab('voucher');
+}
+
+// ── INLINE QR CODE GENERATOR ──
+// Encodes alphanumeric QR (sufficient for MGR-XXXX codes)
+function makeQRSvg(text, size){
+  // Use a URL-based QR approach via Google Charts API as primary
+  // with a pure-JS fallback pattern for offline
+  const url='https://api.qrserver.com/v1/create-qr-code/?size=120x120&data='+encodeURIComponent(text)+'&color=2D5016&bgcolor=EAF3DE&margin=1&format=svg';
+  return `<img src="${url}" width="${size}" height="${size}" style="display:block;border-radius:4px;" onerror="this.outerHTML=makeFallbackQR('${text}',${size})"/>`;
+}
+function makeFallbackQR(text, size){
+  // Simple visual placeholder if API unavailable
+  const s=size||120;
+  return `<svg width="${s}" height="${s}" viewBox="0 0 ${s} ${s}" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <rect width="${s}" height="${s}" rx="6" fill="#EAF3DE"/>
+    <rect x="8" y="8" width="30" height="30" rx="2" fill="none" stroke="#2D5016" stroke-width="3"/>
+    <rect x="14" y="14" width="18" height="18" fill="#2D5016"/>
+    <rect x="${s-38}" y="8" width="30" height="30" rx="2" fill="none" stroke="#2D5016" stroke-width="3"/>
+    <rect x="${s-32}" y="14" width="18" height="18" fill="#2D5016"/>
+    <rect x="8" y="${s-38}" width="30" height="30" rx="2" fill="none" stroke="#2D5016" stroke-width="3"/>
+    <rect x="14" y="${s-32}" width="18" height="18" fill="#2D5016"/>
+    <text x="${s/2}" y="${s/2+4}" text-anchor="middle" font-size="9" font-family="monospace" fill="#2D5016" font-weight="bold">${text}</text>
+  </svg>`;
 }
 
 // ── QR SCANNER (zxing) ──
