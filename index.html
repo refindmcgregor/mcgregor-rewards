@@ -4,7 +4,7 @@
 <meta charset="UTF-8"/>
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>McGregor Rewards — Demo</title>
-<script src="https://unpkg.com/@zxing/library@0.21.1/umd/index.min.js"></script>
+<script async src="https://unpkg.com/@zxing/library@0.21.1/umd/index.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
 body{
@@ -533,7 +533,7 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
       <button class="btn-primary" onclick="doConvert()" style="margin-bottom:7px;">Confirm</button>
       <button class="btn-outline" onclick="appTab('home')">Cancel</button>
     </div>
-    <div id="ps-voucher" class="ps ac">
+    <div id="ps-voucher" class="ps" style="padding:14px;">
       <div class="vou-display">
         <div class="vd-logo">McGregor Rewards</div>
         <div class="vd-val" id="vd-val">ℳ 50</div>
@@ -923,15 +923,25 @@ function renderVOpts(){document.getElementById('c-vopts').innerHTML=VOPTS.map(v=
 function pickV(val,pts){selV={val,pts};renderVOpts();}
 function goConvert(){document.getElementById('conf-val').textContent='ℳ '+selV.val;document.getElementById('conf-pts').textContent=fmt(selV.pts)+' pts';document.getElementById('conf-after').textContent=fmt(totalPts-selV.pts)+' pts';appTab('confirm');}
 function doConvert(){
-  totalPts-=selV.pts;walletTotal+=selV.val;
-  const code=genCode();const exp=new Date('2026-04-28');exp.setMonth(exp.getMonth()+6);
-  const es=exp.toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});
-  myVouchers.push({val:selV.val,pts:selV.pts,code,expStr:es,status:'active'});
-  document.getElementById('vd-val').textContent='ℳ '+selV.val;
-  document.getElementById('vd-code').textContent=code;
-  document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
-  document.getElementById('vd-qr').innerHTML=genQR(code,120);
-  selV={val:0,pts:0};updateHero();renderVOpts();appTab('voucher');
+  try{
+    totalPts-=selV.pts;walletTotal+=selV.val;
+    const code=genCode();
+    const exp=new Date('2026-04-28');exp.setMonth(exp.getMonth()+6);
+    const es=exp.toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});
+    myVouchers.push({val:selV.val,pts:selV.pts,code,expStr:es,status:'active'});
+    document.getElementById('vd-val').textContent='ℳ '+selV.val;
+    document.getElementById('vd-code').textContent=code;
+    document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
+    selV={val:0,pts:0};updateHero();renderVOpts();
+    appTab('voucher');
+    // Render QR after tab switch so element is visible
+    setTimeout(()=>{
+      try{
+        const el=document.getElementById('vd-qr');
+        if(el){el.innerHTML=genQR(code,120);}
+      }catch(e){console.error('QR render error:',e);}
+    },50);
+  }catch(e){console.error('doConvert error:',e);}
 }
 
 // ── SELF-CONTAINED QR GENERATOR (Version 2, Alphanumeric, no dependencies) ──
