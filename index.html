@@ -6,7 +6,16 @@
 <title>McGregor Rewards — Demo</title>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
-body{background:#f5f4f0;min-height:100vh;padding:1rem;}
+body{
+  min-height:100vh;
+  padding:1rem;
+  background-color:#f0ede4;
+  background-image:
+    radial-gradient(circle at 15% 20%, rgba(74,124,35,.07) 0%, transparent 50%),
+    radial-gradient(circle at 85% 75%, rgba(45,80,22,.06) 0%, transparent 45%),
+    radial-gradient(circle at 50% 50%, rgba(186,117,23,.04) 0%, transparent 60%),
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='400' height='400'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.65' numOctaves='3' stitchTiles='stitch'/%3E%3CfeColorMatrix type='saturate' values='0'/%3E%3C/filter%3E%3Crect width='400' height='400' filter='url(%23n)' opacity='0.035'/%3E%3C/svg%3E");
+}
 .root{max-width:700px;margin:0 auto;}
 .view{display:none;}
 .view.active{display:block;}
@@ -16,8 +25,8 @@ body{background:#f5f4f0;min-height:100vh;padding:1rem;}
 .portal-logo{text-align:center;margin-bottom:24px;}
 .portal-title{font-size:11px;font-weight:600;color:#888;text-align:center;margin-bottom:14px;text-transform:uppercase;letter-spacing:1px;}
 .portal-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:10px;}
-.portal-card{background:white;border:1px solid #e8e4dc;border-radius:16px;padding:22px 16px;cursor:pointer;transition:all .15s;text-align:center;}
-.portal-card:hover{border-color:#aaa;transform:translateY(-1px);}
+.portal-card{background:#fffef8;border:1px solid #e8e2d4;border-radius:16px;padding:22px 16px;cursor:pointer;transition:all .15s;text-align:center;}
+.portal-card:hover{border-color:#b8c89a;transform:translateY(-2px);box-shadow:0 6px 20px rgba(74,124,35,.1);}
 .portal-card.customer{border-top:3px solid #2D5016;}
 .portal-card.business{border-top:3px solid #1B5E20;}
 .portal-name{font-size:14px;font-weight:600;color:#1a1a1a;margin:10px 0 3px;}
@@ -26,7 +35,7 @@ body{background:#f5f4f0;min-height:100vh;padding:1rem;}
 .portal-admin-link{font-size:11px;color:#666;cursor:pointer;border-bottom:1px solid #ccc;padding-bottom:1px;}
 
 /* ── APP FRAME ── */
-.app-frame{max-width:360px;margin:0 auto;background:white;border:1px solid #e0dbd0;border-radius:26px;overflow:hidden;box-shadow:0 4px 24px rgba(0,0,0,.08);}
+.app-frame{max-width:360px;margin:0 auto;background:#fffef8;border:1px solid #e0dbd0;border-radius:26px;overflow:hidden;box-shadow:0 8px 32px rgba(45,80,22,.12);}
 .app-bar{background:#2D5016;padding:11px 16px 9px;display:flex;justify-content:space-between;align-items:center;}
 .app-bar-title{font-size:13px;font-weight:600;color:white;}
 .app-bar-btn{background:rgba(255,255,255,.18);border:none;color:white;border-radius:100px;padding:4px 11px;font-size:10px;cursor:pointer;}
@@ -357,6 +366,26 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 
 <div id="v-portal" class="view active">
   <div class="portal-wrap">
+    <div style="text-align:center;margin-bottom:20px;">
+      <svg width="320" height="80" viewBox="0 0 320 80" fill="none" style="display:block;margin:0 auto;opacity:.55;">
+        <rect width="320" height="80" rx="16" fill="#e8e4d8"/>
+        <ellipse cx="160" cy="90" rx="180" ry="55" fill="#c8d8a8" opacity=".5"/>
+        <path d="M0 55 Q40 30 80 45 Q120 58 160 40 Q200 22 240 42 Q280 58 320 48 L320 80 L0 80Z" fill="#a8c878" opacity=".4"/>
+        <path d="M0 62 Q50 48 100 55 Q150 62 200 50 Q250 38 320 55 L320 80 L0 80Z" fill="#8ab858" opacity=".35"/>
+        <path d="M60 45 L63 25 L66 45Z" fill="#6b9e3a" opacity=".5"/>
+        <path d="M58 45 Q63 18 68 45" stroke="#6b9e3a" stroke-width="1" fill="none" opacity=".4"/>
+        <path d="M240 42 L243 20 L246 42Z" fill="#6b9e3a" opacity=".45"/>
+        <path d="M238 42 Q243 15 248 42" stroke="#6b9e3a" stroke-width="1" fill="none" opacity=".35"/>
+        <path d="M140 40 L143 24 L146 40Z" fill="#7aae45" opacity=".4"/>
+        <rect x="95" y="38" width="18" height="12" rx="2" fill="#d4c8a0" opacity=".6"/>
+        <path d="M92 38 L104 28 L116 38Z" fill="#c4b888" opacity=".55"/>
+        <rect x="185" y="34" width="14" height="9" rx="2" fill="#d4c8a0" opacity=".5"/>
+        <path d="M183 34 L192 26 L201 34Z" fill="#c4b888" opacity=".45"/>
+        <circle cx="30" cy="18" r="8" fill="#f5e87a" opacity=".3"/>
+        <circle cx="30" cy="18" r="5" fill="#f5d840" opacity=".25"/>
+        <path d="M0 65 Q80 58 160 62 Q240 66 320 60 L320 80 L0 80Z" fill="#7a9848" opacity=".3"/>
+      </svg>
+    </div>
     <div class="portal-logo">
       <svg width="56" height="56" viewBox="0 0 56 56" fill="none" style="display:block;margin:0 auto 10px;">
         <rect width="56" height="56" rx="15" fill="#2D5016"/>
