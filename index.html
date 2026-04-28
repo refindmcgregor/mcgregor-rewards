@@ -19,7 +19,7 @@ body{background:#f5f4f0;min-height:100vh;padding:1rem;}
 .portal-card{background:white;border:1px solid #e8e4dc;border-radius:16px;padding:22px 16px;cursor:pointer;transition:all .15s;text-align:center;}
 .portal-card:hover{border-color:#aaa;transform:translateY(-1px);}
 .portal-card.customer{border-top:3px solid #2D5016;}
-.portal-card.business{border-top:3px solid #854F0B;}
+.portal-card.business{border-top:3px solid #1B5E20;}
 .portal-name{font-size:14px;font-weight:600;color:#1a1a1a;margin:10px 0 3px;}
 .portal-desc{font-size:11px;color:#888;line-height:1.4;}
 .portal-admin{text-align:center;margin-top:8px;}
@@ -198,25 +198,155 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 .toast-bar.show{display:block;}
 
 /* ── BIZ LOGIN ── */
-.biz-login-head{background:#854F0B;color:white;padding:20px 18px;text-align:center;}
+.biz-login-head{background:#1B5E20;color:white;padding:20px 18px;text-align:center;}
 .biz-login-body{padding:20px 18px;}
 
 /* ── REG FORM ── */
-.reg-wrap{max-width:500px;margin:0 auto;background:white;border:1px solid #e0dbd0;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);}
-.reg-head{background:#854F0B;color:white;padding:14px 18px;}
-.warn-box{background:#EDF4FF;border:1px solid #85B7EB;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:11px;color:#0C447C;line-height:1.5;}
+.reg-wrap{max-width:520px;margin:0 auto;background:white;border:1px solid #e0dbd0;border-radius:14px;overflow:hidden;box-shadow:0 2px 12px rgba(0,0,0,.06);}
+.reg-head{background:#1B5E20;color:white;padding:16px 20px;}
+.reg-head-title{font-size:15px;font-weight:700;}
+.reg-head-sub{font-size:11px;opacity:.7;margin-top:3px;}
+.reg-body{padding:20px;}
+.warn-box{background:#EDF4FF;border:1px solid #85B7EB;border-radius:8px;padding:10px 12px;margin-bottom:12px;font-size:12px;color:#0C447C;line-height:1.6;}
+.chk-label{display:flex;align-items:flex-start;gap:10px;font-size:12px;color:#1a1a1a;margin-bottom:10px;cursor:pointer;line-height:1.5;}
+.chk-label input[type=checkbox]{width:16px;height:16px;min-width:16px;margin-top:1px;accent-color:#2D5016;cursor:pointer;}
+.btn-green{background:#1B5E20;color:white;border:none;border-radius:10px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;margin-top:4px;}
+.btn-green:hover{background:#2D5016;}
 
 /* ── DEMO BANNER ── */
 .demo-banner{background:#1e2535;color:white;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;display:flex;align-items:center;gap:8px;}
 .demo-dot{width:8px;height:8px;border-radius:50%;background:#A8D55A;flex-shrink:0;}
+
+/* ── WELCOME OVERLAY ── */
+.overlay{position:fixed;inset:0;background:rgba(15,20,30,.7);display:flex;align-items:center;justify-content:center;z-index:999;padding:1rem;}
+.overlay.hidden{display:none;}
+.welcome-card{background:white;border-radius:20px;max-width:480px;width:100%;overflow:hidden;box-shadow:0 24px 60px rgba(0,0,0,.3);}
+.wc-head{background:#2D5016;color:white;padding:24px 24px 20px;text-align:center;}
+.wc-logo{margin:0 auto 12px;}
+.wc-title{font-size:20px;font-weight:700;margin-bottom:4px;}
+.wc-sub{font-size:12px;opacity:.75;}
+.wc-body{padding:22px 24px;}
+.wc-intro{font-size:13px;color:#444;line-height:1.6;margin-bottom:20px;text-align:center;}
+.demo-paths{display:grid;grid-template-columns:1fr 1fr 1fr;gap:10px;margin-bottom:20px;}
+.demo-path{border:1px solid #e8e4dc;border-radius:12px;padding:14px 10px;text-align:center;}
+.demo-path.highlight{border-color:#4A7C23;background:#f0f7e8;}
+.dp-icon{margin:0 auto 8px;}
+.dp-title{font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:4px;}
+.dp-desc{font-size:10px;color:#888;line-height:1.4;}
+.creds-grid{display:grid;grid-template-columns:1fr 1fr;gap:8px;margin-bottom:20px;}
+.cred-box{background:#faf9f7;border:1px solid #e8e4dc;border-radius:10px;padding:11px 12px;}
+.cred-title{font-size:10px;font-weight:700;color:#2D5016;text-transform:uppercase;letter-spacing:.5px;margin-bottom:6px;}
+.cred-row{font-size:11px;color:#444;margin-bottom:2px;line-height:1.5;}
+.cred-row span{font-family:'Courier New',monospace;color:#1a1a1a;font-weight:600;}
+.pins-box{background:#faf9f7;border:1px solid #e8e4dc;border-radius:10px;padding:11px 12px;margin-bottom:20px;}
+.pins-title{font-size:10px;font-weight:700;color:#2D5016;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px;}
+.pins-grid{display:grid;grid-template-columns:1fr 1fr;gap:4px;}
+.pin-item{font-size:11px;color:#444;display:flex;justify-content:space-between;padding:2px 0;}
+.pin-item span{font-family:'Courier New',monospace;font-weight:700;color:#1a1a1a;}
+.btn-start{background:#2D5016;color:white;border:none;border-radius:12px;padding:14px;font-size:15px;font-weight:700;cursor:pointer;width:100%;transition:all .15s;}
+.btn-start:hover{background:#4A7C23;}
+.wc-note{font-size:10px;color:#aaa;text-align:center;margin-top:10px;line-height:1.5;}
 </style>
 </head>
 <body>
+
+<!-- ══ WELCOME OVERLAY ══ -->
+<div class="overlay" id="welcome-overlay">
+  <div class="welcome-card">
+    <div class="wc-head">
+      <div class="wc-logo">
+        <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="display:block;margin:0 auto;">
+          <rect width="52" height="52" rx="14" fill="rgba(255,255,255,.15)"/>
+          <path d="M26 10 Q16 17 14 26 Q12 35 19 40 Q26 45 33 40 Q40 35 38 26 Q36 17 26 10Z" fill="rgba(255,255,255,.2)" stroke="rgba(255,255,255,.7)" stroke-width="1.8"/>
+          <circle cx="26" cy="26" r="6" fill="rgba(255,255,255,.9)"/>
+          <text x="26" y="30" text-anchor="middle" font-size="9" font-weight="700" fill="#2D5016" font-family="sans-serif">M</text>
+        </svg>
+      </div>
+      <div class="wc-title">McGregor Rewards</div>
+      <div class="wc-sub">Interactive demo · All data is simulated</div>
+    </div>
+    <div class="wc-body">
+      <div class="wc-intro">Welcome! This is a fully interactive prototype of the McGregor Rewards loyalty programme. Explore all three portals below.</div>
+
+      <div class="demo-paths">
+        <div class="demo-path highlight">
+          <div class="dp-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="display:block;margin:0 auto;">
+              <rect width="36" height="36" rx="10" fill="#EAF3DE"/>
+              <path d="M18 7Q11 12 9 18Q7 25 12 29Q18 33 24 29Q29 25 27 18Q25 12 18 7Z" fill="#4A7C23" opacity=".2" stroke="#2D5016" stroke-width="1.4"/>
+              <circle cx="18" cy="18" r="4" fill="#2D5016" opacity=".85"/>
+              <text x="18" y="22" text-anchor="middle" font-size="7" font-weight="700" fill="white" font-family="sans-serif">M</text>
+            </svg>
+          </div>
+          <div class="dp-title">Customer app</div>
+          <div class="dp-desc">Earn points, convert to McGregor Rands, redeem vouchers</div>
+        </div>
+        <div class="demo-path">
+          <div class="dp-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="display:block;margin:0 auto;">
+              <rect width="36" height="36" rx="10" fill="#EAF3DE"/>
+              <path d="M18 8L12 14L12 28L24 28L24 14Z" fill="#4A7C23" opacity=".18" stroke="#1B5E20" stroke-width="1.3" stroke-linejoin="round"/>
+              <path d="M8 14L18 8L28 14" stroke="#1B5E20" stroke-width="1.6" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+              <rect x="14" y="20" width="8" height="8" rx="1" fill="#4A7C23" opacity=".2" stroke="#1B5E20" stroke-width="1.1"/>
+            </svg>
+          </div>
+          <div class="dp-title">Business portal</div>
+          <div class="dp-desc">Apply to join, confirm transactions with PIN</div>
+        </div>
+        <div class="demo-path">
+          <div class="dp-icon">
+            <svg width="36" height="36" viewBox="0 0 36 36" fill="none" style="display:block;margin:0 auto;">
+              <rect width="36" height="36" rx="10" fill="#e8eaf6"/>
+              <rect x="6" y="10" width="24" height="17" rx="2" stroke="#1e2535" stroke-width="1.3" fill="none"/>
+              <path d="M6 15L30 15" stroke="#1e2535" stroke-width="1.3"/>
+              <path d="M10 20L16 20" stroke="#1e2535" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>
+              <path d="M10 23L14 23" stroke="#1e2535" stroke-width="1.3" stroke-linecap="round" opacity=".5"/>
+              <circle cx="26" cy="22" r="5" fill="#1e2535" opacity=".15" stroke="#1e2535" stroke-width="1"/>
+            </svg>
+          </div>
+          <div class="dp-title">Town admin</div>
+          <div class="dp-desc">Manage all businesses, billing and members</div>
+        </div>
+      </div>
+
+      <div class="creds-grid">
+        <div class="cred-box">
+          <div class="cred-title">Customer login</div>
+          <div class="cred-row">Email: <span>sarah@gmail.com</span></div>
+          <div class="cred-row">Password: <span>cust123</span></div>
+          <div style="font-size:10px;color:#aaa;margin-top:5px;">Or tap "Join free" to register as a new member</div>
+        </div>
+        <div class="cred-box">
+          <div class="cred-title">Town admin login</div>
+          <div class="cred-row">Email: <span>admin@mcgregor.co.za</span></div>
+          <div class="cred-row">Password: <span>admin123</span></div>
+          <div style="font-size:10px;color:#aaa;margin-top:5px;">Via the "Town admin portal →" link</div>
+        </div>
+      </div>
+
+      <div class="pins-box">
+        <div class="pins-title">Business cashier PINs — enter after spending to earn points</div>
+        <div class="pins-grid">
+          <div class="pin-item">Kunskombuis <span>1234</span></div>
+          <div class="pin-item">McGregor Winery <span>9012</span></div>
+          <div class="pin-item">Refind <span>3456</span></div>
+          <div class="pin-item">Jimmy's Pub <span>7890</span></div>
+          <div class="pin-item">Temenos <span>5678</span></div>
+          <div class="pin-item">Country Guesthouse <span>2468</span></div>
+        </div>
+      </div>
+
+      <button class="btn-start" onclick="closeOverlay()">Explore the demo →</button>
+      <div class="wc-note">All data resets when you refresh the page · No real payments or accounts are created</div>
+    </div>
+  </div>
+</div>
+
 <div class="root">
 
 <div class="demo-banner">
   <div class="demo-dot"></div>
-  <span><strong>McGregor Rewards — interactive demo</strong> &nbsp;·&nbsp; All data is simulated &nbsp;·&nbsp; Customer PIN: see each business below</span>
+  <span><strong>McGregor Rewards — interactive demo</strong> &nbsp;·&nbsp; All data is simulated &nbsp;·&nbsp; <a href="#" onclick="document.getElementById('welcome-overlay').classList.remove('hidden');return false;" style="color:#A8D55A;text-decoration:none;font-weight:600;">View demo guide</a></span>
 </div>
 
 <div id="v-portal" class="view active">
@@ -245,10 +375,10 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
       </div>
       <div class="portal-card business" onclick="showView('v-biz-login')">
         <svg width="44" height="44" viewBox="0 0 44 44" fill="none" style="display:block;margin:0 auto;">
-          <rect width="44" height="44" rx="12" fill="#FAEEDA"/>
-          <path d="M22 10 L14 18 L14 36 L30 36 L30 18 Z" fill="#EF9F27" opacity=".2" stroke="#854F0B" stroke-width="1.6" stroke-linejoin="round"/>
-          <path d="M10 18 L22 10 L34 18" stroke="#854F0B" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
-          <rect x="17" y="25" width="10" height="11" rx="1" fill="#EF9F27" opacity=".3" stroke="#854F0B" stroke-width="1.2"/>
+          <rect width="44" height="44" rx="12" fill="#EAF3DE"/>
+          <path d="M22 10 L14 18 L14 36 L30 36 L30 18 Z" fill="#4A7C23" opacity=".18" stroke="#1B5E20" stroke-width="1.6" stroke-linejoin="round"/>
+          <path d="M10 18 L22 10 L34 18" stroke="#1B5E20" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
+          <rect x="17" y="25" width="10" height="11" rx="1" fill="#4A7C23" opacity=".25" stroke="#1B5E20" stroke-width="1.2"/>
         </svg>
         <div class="portal-name">Business portal</div>
         <div class="portal-desc">Confirm transactions &amp; view your dashboard</div>
@@ -267,7 +397,7 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
           <div style="color:#aaa;margin-top:3px;font-size:9px;">or tap "Join free" to register</div>
         </div>
         <div style="background:#faf9f7;border-radius:8px;padding:9px;">
-          <div style="font-weight:700;color:#854F0B;margin-bottom:4px;">Business PINs</div>
+          <div style="font-weight:700;color:#1B5E20;margin-bottom:4px;">Business PINs</div>
           <div style="color:#666;">Kunskombuis: 1234</div>
           <div style="color:#666;">Winery: 9012</div>
           <div style="color:#666;">Refind: 3456</div>
@@ -453,15 +583,15 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 
 <!-- ══ BUSINESS LOGIN ══ -->
 <div id="v-biz-login" class="view">
-  <div style="margin-bottom:12px;"><button onclick="showView('v-portal')" style="background:none;border:none;color:#854F0B;font-size:12px;cursor:pointer;font-weight:600;">← Back</button></div>
+  <div style="margin-bottom:14px;"><button onclick="showView('v-portal')" style="background:none;border:none;color:#2D5016;font-size:12px;cursor:pointer;font-weight:600;">← Back to portal</button></div>
   <div class="app-frame" style="max-width:360px;">
-    <div class="app-bar" style="background:#854F0B;">
+    <div class="app-bar" style="background:#1B5E20;">
       <div class="app-bar-title">Business portal</div>
       <button class="app-bar-btn" onclick="showView('v-portal')">← Back</button>
     </div>
     <div style="padding:24px 18px;text-align:center;">
       <svg width="52" height="52" viewBox="0 0 52 52" fill="none" style="display:block;margin:0 auto 12px;">
-        <rect width="52" height="52" rx="14" fill="#854F0B"/>
+        <rect width="52" height="52" rx="14" fill="#1B5E20"/>
         <path d="M26 12L17 21L17 42L35 42L35 21Z" fill="rgba(255,255,255,.15)" stroke="rgba(255,255,255,.7)" stroke-width="1.5" stroke-linejoin="round"/>
         <path d="M13 21L26 12L39 21" stroke="rgba(255,255,255,.7)" stroke-width="2" fill="none" stroke-linecap="round" stroke-linejoin="round"/>
         <rect x="21" y="30" width="10" height="12" rx="1" fill="rgba(255,255,255,.3)" stroke="rgba(255,255,255,.7)" stroke-width="1.2"/>
@@ -472,8 +602,8 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         <div class="fg"><div class="fl">Business email</div><input placeholder="yourname@business.co.za"/></div>
         <div class="fg"><div class="fl">Password</div><input type="password" placeholder="Your password"/></div>
         <div style="margin-bottom:10px;"></div>
-        <button class="btn-primary" style="background:#854F0B;" onclick="alert('Business dashboard — coming in the full build!\n\nEach business will have their own secure view showing only their own transactions, customers, and settings.')">Sign in to dashboard</button>
-        <div style="font-size:10px;color:#aaa;text-align:center;margin-top:10px;">Not registered? <span style="color:#854F0B;cursor:pointer;font-weight:600;" onclick="showView('v-register')">Apply to join →</span></div>
+        <button class="btn-primary" style="background:#1B5E20;" onclick="alert('Business dashboard — coming in the full build!\n\nEach business will have their own secure view showing only their own transactions, customers, and settings.')">Sign in to dashboard</button>
+        <div style="font-size:10px;color:#aaa;text-align:center;margin-top:10px;">Not registered? <span style="color:#1B5E20;cursor:pointer;font-weight:600;" onclick="showView('v-register')">Apply to join →</span></div>
       </div>
     </div>
   </div>
@@ -569,16 +699,16 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 
 <!-- ══ BIZ REGISTER ══ -->
 <div id="v-register" class="view">
-  <div style="margin-bottom:12px;"><button onclick="showView('v-portal')" style="background:none;border:none;color:#854F0B;font-size:12px;cursor:pointer;font-weight:600;">← Back</button></div>
+  <div style="margin-bottom:14px;"><button onclick="showView('v-portal')" style="background:none;border:none;color:#2D5016;font-size:12px;cursor:pointer;font-weight:600;">← Back to portal</button></div>
   <div class="reg-wrap">
     <div class="reg-head">
-      <div style="font-size:14px;font-weight:700;">Join McGregor Rewards — business</div>
-      <div style="font-size:10px;opacity:.72;margin-top:2px;">R75/month listing fee · paid securely via Yoco</div>
+      <div class="reg-head-title">Join McGregor Rewards — business</div>
+      <div class="reg-head-sub">Apply to list your business · R75/month · paid securely via Yoco</div>
     </div>
-    <div style="padding:16px;" id="rb-form">
+    <div class="reg-body" id="rb-form">
       <div class="fg"><div class="fl">Business name *</div><input id="rb-name" placeholder="e.g. McGregor Pottery"/></div>
       <div class="row2">
-        <div class="fg"><div class="fl">Category *</div><select id="rb-cat"><option value="">Select...</option><option>Food & drink</option><option>Retail</option><option>Accommodation</option><option>Wellness</option><option>Experience</option><option>Services</option></select></div>
+        <div class="fg"><div class="fl">Category *</div><select id="rb-cat"><option value="">Select...</option><option>Food &amp; drink</option><option>Retail</option><option>Accommodation</option><option>Wellness</option><option>Experience</option><option>Services</option></select></div>
         <div class="fg"><div class="fl">Street address *</div><input id="rb-addr" placeholder="14 Voortrek St"/></div>
       </div>
       <div class="row2">
@@ -587,30 +717,35 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
       </div>
       <div class="row2">
         <div class="fg"><div class="fl">Email *</div><input id="rb-email" type="email" placeholder="owner@email.com"/></div>
-        <div class="fg"><div class="fl">Password *</div><input id="rb-pass" type="password" placeholder="Min 8 chars"/></div>
+        <div class="fg"><div class="fl">Password *</div><input id="rb-pass" type="password" placeholder="Min 8 characters"/></div>
       </div>
-      <div class="warn-box"><strong>R75/month listing fee</strong> · Invoiced monthly via Yoco payment link · No card stored · First invoice on approval</div>
+      <div style="border-top:1px solid #f0ece4;margin:4px 0 16px;"></div>
+      <div class="warn-box"><strong>R75/month listing fee</strong> · Invoiced monthly via Yoco payment link · No card stored · First invoice issued on approval</div>
       <div class="fg"><div class="fl">Billing email *</div><input id="rb-billemail" placeholder="invoices@yourbiz.co.za"/></div>
-      <label style="display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#1a1a1a;margin-bottom:7px;cursor:pointer;"><input type="checkbox" id="rb-c1" style="margin-top:2px;"/> I agree to the participation terms and R75/month fee paid via Yoco</label>
-      <label style="display:flex;align-items:flex-start;gap:7px;font-size:11px;color:#1a1a1a;margin-bottom:10px;cursor:pointer;"><input type="checkbox" id="rb-c2" style="margin-top:2px;"/> The information I've provided is accurate and truthful</label>
+      <div style="margin-top:14px;margin-bottom:4px;">
+        <label class="chk-label"><input type="checkbox" id="rb-c1"/> I agree to the participation terms and R75/month listing fee paid via Yoco</label>
+        <label class="chk-label"><input type="checkbox" id="rb-c2"/> The information I've provided is accurate and truthful</label>
+      </div>
       <div class="lerr" id="rb-err"></div>
-      <button style="background:#854F0B;color:white;border:none;border-radius:100px;padding:11px;font-size:13px;font-weight:700;cursor:pointer;width:100%;" onclick="submitBizApp()">Submit application</button>
+      <button class="btn-green" onclick="submitBizApp()">Submit application</button>
     </div>
-    <div style="display:none;padding:20px;text-align:center;" id="rb-success">
-      <div style="width:52px;height:52px;background:#EAF3DE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 12px;"><svg width="24" height="24" viewBox="0 0 24 24" fill="none"><path d="M5 12L10 17L19 7" stroke="#2D5016" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
-      <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Application submitted!</div>
-      <div style="font-size:11px;color:#888;">Reference number</div>
-      <div style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;color:#2D5016;background:#EAF3DE;border:1px solid #C0DD97;border-radius:7px;padding:5px 14px;display:inline-block;margin:7px 0;" id="rb-ref">APP-0000</div>
-      <div style="font-size:11px;color:#888;line-height:1.7;margin-top:6px;">The town admin will review within <strong style="color:#1a1a1a;">2 business days</strong>. Once approved, a Yoco payment link for <strong style="color:#1a1a1a;">R75</strong> will be sent to your billing email.</div>
-      <button onclick="showView('v-portal')" style="margin-top:14px;background:none;border:1px solid #e8e4dc;color:#666;border-radius:100px;padding:9px 20px;font-size:12px;cursor:pointer;width:100%;">Back to portal</button>
+    <div style="display:none;padding:24px 20px;text-align:center;" id="rb-success">
+      <div style="width:56px;height:56px;background:#EAF3DE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 14px;"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M5 13L10.5 18.5L21 8" stroke="#2D5016" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+      <div style="font-size:17px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Application submitted!</div>
+      <div style="font-size:12px;color:#888;margin-bottom:6px;">Your reference number</div>
+      <div style="font-family:'Courier New',monospace;font-size:15px;font-weight:700;color:#2D5016;background:#EAF3DE;border:1px solid #C0DD97;border-radius:8px;padding:6px 16px;display:inline-block;margin-bottom:14px;" id="rb-ref">APP-0000</div>
+      <div style="font-size:12px;color:#666;line-height:1.7;max-width:360px;margin:0 auto 18px;">The town admin will review your application within <strong style="color:#1a1a1a;">2 business days</strong>. Once approved, a Yoco payment link for <strong style="color:#1a1a1a;">R75</strong> will be emailed to your billing address and your account will be activated.</div>
+      <button onclick="showView('v-portal')" style="background:#1B5E20;color:white;border:none;border-radius:10px;padding:11px 24px;font-size:13px;font-weight:600;cursor:pointer;width:100%;">Back to portal</button>
     </div>
   </div>
 </div>
 
 </div><!-- end root -->
+</div><!-- end body root wrapper -->
 
 <script>
 // ── STATE ──
+function closeOverlay(){document.getElementById('welcome-overlay').classList.add('hidden');}
 let totalPts=1240,walletTotal=0,selV={val:0,pts:0},curBiz=null,curAmt='',earnPin='',aFilter='pending',nextAppId=2849,newMemCt=0;
 let curUserName='Sarah van Zyl',curUserEmail='sarah@gmail.com',isNew=false;
 
