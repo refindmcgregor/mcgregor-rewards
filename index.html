@@ -5,7 +5,7 @@
 <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
 <title>McGregor Rewards — Demo</title>
 <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jsQR/1.4.0/jsQR.min.js"></script>
+<script src="https://unpkg.com/@zxing/library@0.21.1/umd/index.min.js"></script>
 <style>
 *{box-sizing:border-box;margin:0;padding:0;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',sans-serif;}
 body{
@@ -623,7 +623,7 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         <div style="font-size:12px;color:#666;margin-bottom:12px;line-height:1.6;">Scan the customer's QR code or enter the voucher code manually.</div>
 
         <div id="bd-scanner-wrap" style="display:none;">
-          <div class="scan-area">
+          <div class="scan-area" onclick="tapToFocus(event)">
             <video id="bd-video" class="scan-video" playsinline autoplay muted></video>
             <div class="scan-overlay">
               <div style="position:relative;width:170px;height:170px;">
@@ -636,8 +636,11 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
               </div>
             </div>
           </div>
-          <div class="scan-hint">Point camera at the customer's QR code</div>
-          <button onclick="stopScanner()" class="btn-outline" style="margin-bottom:10px;">Cancel scan</button>
+          <div class="scan-hint">Hold QR code steady inside the frame · Tap to focus</div>
+          <div style="display:flex;gap:7px;margin-bottom:8px;">
+            <button onclick="stopScanner()" class="btn-outline" style="flex:1;">Cancel</button>
+            <button onclick="toggleTorch()" id="torch-btn" class="btn-outline" style="flex:1;">🔦 Torch</button>
+          </div>
         </div>
 
         <div id="bd-manual-wrap">
@@ -937,54 +940,103 @@ function doConvert(){
   selV={val:0,pts:0};updateHero();renderVOpts();appTab('voucher');
 }
 
-// ── QR SCANNER ──
-let scanStream=null;let scanInterval=null;
+// ── QR SCANNER (zxing) ──
+let codeReader=null;let scanStream=null;
+
 function startScanner(){
   const wrap=document.getElementById('bd-scanner-wrap');
   const manWrap=document.getElementById('bd-manual-wrap');
   if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
     alert('Camera not available on this device or browser. Please use the manual code entry below.');return;
   }
-  navigator.mediaDevices.getUserMedia({video:{facingMode:'environment'},audio:false})
-    .then(stream=>{
-      scanStream=stream;
-      const video=document.getElementById('bd-video');
-      video.srcObject=stream;
-      video.play();
-      wrap.style.display='block';
-      manWrap.style.display='none';
-      // Poll frames for QR
-      const canvas=document.createElement('canvas');
-      const ctx=canvas.getContext('2d');
-      scanInterval=setInterval(()=>{
-        if(video.readyState===video.HAVE_ENOUGH_DATA){
-          canvas.width=video.videoWidth;canvas.height=video.videoHeight;
-          ctx.drawImage(video,0,0,canvas.width,canvas.height);
-          const imgData=ctx.getImageData(0,0,canvas.width,canvas.height);
-          if(window.jsQR){
-            const qr=jsQR(imgData.data,imgData.width,imgData.height,{inversionAttempts:'dontInvert'});
-            if(qr&&qr.data&&qr.data.startsWith('MGR-')){
-              stopScanner();
-              document.getElementById('bd-vcode').value=qr.data;
-              bdLookup();
-            }
+  wrap.style.display='block';
+  manWrap.style.display='none';
+
+  // Use zxing BrowserQRCodeReader — handles focus & low light much better than jsQR
+  try{
+    codeReader=new ZXing.BrowserQRCodeReader();
+    codeReader.decodeFromConstraints(
+      {video:{facingMode:'environment',width:{ideal:1920},height:{ideal:1080},focusMode:'continuous',advanced:[{focusMode:'continuous'},{torch:false}]}},
+      'bd-video',
+      (result,err)=>{
+        if(result){
+          const code=result.getText();
+          if(code&&code.startsWith('MGR-')){
+            stopScanner();
+            document.getElementById('bd-vcode').value=code;
+            bdLookup();
           }
         }
-      },200);
-    })
-    .catch(err=>{
-      if(err.name==='NotAllowedError'){
-        alert('Camera permission denied. Please allow camera access in your browser settings, or use the manual code entry below.');
-      } else {
-        alert('Could not access camera. Please use the manual code entry below.');
+        // err is normal when no QR found in frame — ignore
       }
+    ).catch(e=>{
+      handleScanError(e);
     });
+  } catch(e){
+    handleScanError(e);
+  }
 }
-function stopScanner(){
-  if(scanInterval){clearInterval(scanInterval);scanInterval=null;}
-  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
+
+let torchOn=false;
+function tapToFocus(e){
   const video=document.getElementById('bd-video');
-  if(video)video.srcObject=null;
+  if(!video||!video.srcObject)return;
+  const track=video.srcObject.getVideoTracks()[0];
+  if(!track)return;
+  const caps=track.getCapabilities?track.getCapabilities():{};
+  const constraints={};
+  if(caps.focusMode&&caps.focusMode.includes('manual')){
+    constraints.focusMode='manual';
+    const rect=video.getBoundingClientRect();
+    const x=(e.clientX-rect.left)/rect.width;
+    const y=(e.clientY-rect.top)/rect.height;
+    if(caps.pointsOfInterest)constraints.pointsOfInterest=[{x,y}];
+  } else if(caps.focusMode&&caps.focusMode.includes('continuous')){
+    constraints.focusMode='continuous';
+  }
+  if(Object.keys(constraints).length>0){
+    track.applyConstraints({advanced:[constraints]}).catch(()=>{});
+  }
+  // Green dot feedback
+  const dot=document.createElement('div');
+  const rect=video.getBoundingClientRect();
+  dot.style.cssText='position:absolute;width:36px;height:36px;border:2px solid #A8D55A;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);transition:opacity .6s;z-index:10;';
+  dot.style.left=(e.clientX-rect.left)+'px';
+  dot.style.top=(e.clientY-rect.top)+'px';
+  const scanArea=document.querySelector('.scan-area');
+  if(scanArea){scanArea.style.position='relative';scanArea.appendChild(dot);}
+  setTimeout(()=>{dot.style.opacity='0';setTimeout(()=>dot.remove(),600);},900);
+}
+function toggleTorch(){
+  const video=document.getElementById('bd-video');
+  if(!video||!video.srcObject)return;
+  const track=video.srcObject.getVideoTracks()[0];
+  if(!track)return;
+  const caps=track.getCapabilities?track.getCapabilities():{};
+  if(!caps.torch){alert('Torch not available on this device.');return;}
+  torchOn=!torchOn;
+  track.applyConstraints({advanced:[{torch:torchOn}]}).catch(()=>{});
+  const btn=document.getElementById('torch-btn');
+  btn.style.background=torchOn?'#2D5016':'';
+  btn.style.color=torchOn?'white':'';
+}
+
+function handleScanError(e){
+  stopScanner();
+  if(e&&(e.name==='NotAllowedError'||String(e).includes('Permission'))){
+    alert('Camera permission denied.\n\nTo fix: tap the camera icon in your browser address bar and select Allow, then try again.');
+  } else {
+    alert('Could not start the camera. Please use the manual code entry below.');
+  }
+}
+
+function stopScanner(){
+  try{if(codeReader){codeReader.reset();codeReader=null;}}catch(e){}
+  const video=document.getElementById('bd-video');
+  if(video&&video.srcObject){
+    video.srcObject.getTracks().forEach(t=>t.stop());
+    video.srcObject=null;
+  }
   document.getElementById('bd-scanner-wrap').style.display='none';
   document.getElementById('bd-manual-wrap').style.display='block';
 }
