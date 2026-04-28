@@ -205,23 +205,7 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 .reset-link{font-size:10px;color:#4A7C23;text-align:center;cursor:pointer;margin-top:6px;display:block;text-decoration:underline;text-decoration-color:rgba(74,124,35,.3);}
 .reset-link:hover{color:#2D5016;}
 .reset-screen{padding:22px 18px;}
-.reset-back{background:none;border:none;color:#4A7C23;font-size:12px;font-weight:600;cursor:pointer;padding:0;margin-bottom:16px;display:flex;align-items:center;gap:4px;}
 .reset-success{text-align:center;padding:12px 0;}
-.qr-wrap{background:white;border-radius:10px;padding:10px;display:inline-block;margin:8px auto 4px;}
-.scan-area{position:relative;background:#000;border-radius:12px;overflow:hidden;margin-bottom:10px;}
-.scan-video{width:100%;display:block;border-radius:12px;}
-.scan-overlay{position:absolute;inset:0;display:flex;align-items:center;justify-content:center;pointer-events:none;}
-.scan-frame{width:170px;height:170px;border:2.5px solid #A8D55A;border-radius:10px;box-shadow:0 0 0 1000px rgba(0,0,0,.45);}
-.scan-corner{position:absolute;width:22px;height:22px;border-color:#A8D55A;border-style:solid;}
-.scan-corner.tl{top:0;left:0;border-width:3px 0 0 3px;border-radius:3px 0 0 0;}
-.scan-corner.tr{top:0;right:0;border-width:3px 3px 0 0;border-radius:0 3px 0 0;}
-.scan-corner.bl{bottom:0;left:0;border-width:0 0 3px 3px;border-radius:0 0 0 3px;}
-.scan-corner.br{bottom:0;right:0;border-width:0 3px 3px 0;border-radius:0 0 3px 0;}
-.scan-line{position:absolute;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,#A8D55A,transparent);animation:scanline 2s linear infinite;}
-@keyframes scanline{0%{top:15%}100%{top:85%}}
-.scan-hint{font-size:10px;color:#888;text-align:center;margin-bottom:8px;}
-.btn-scan{background:#1B5E20;color:white;border:none;border-radius:100px;padding:10px;font-size:12px;font-weight:600;cursor:pointer;width:100%;margin-bottom:7px;display:flex;align-items:center;justify-content:center;gap:6px;}
-.btn-scan svg{flex-shrink:0;}
 
 .demo-banner{background:#1e2535;color:white;border-radius:10px;padding:10px 14px;margin-bottom:14px;font-size:11px;display:flex;align-items:center;gap:8px;}
 .demo-dot{width:8px;height:8px;border-radius:50%;background:#A8D55A;flex-shrink:0;}
@@ -546,13 +530,15 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         <div class="vd-logo">McGregor Rewards</div>
         <div class="vd-val" id="vd-val">ℳ 50</div>
         <div class="vd-sub">McGregor Rands · no minimum spend</div>
-        <div class="qr-wrap"><div id="vd-qr" style="width:120px;height:120px;display:flex;align-items:center;justify-content:center;"></div></div>
-        <button onclick="drawQR(document.getElementById('vd-code').textContent,document.getElementById('vd-qr'),120)" style="font-size:10px;color:#4A7C23;background:none;border:none;cursor:pointer;margin-bottom:2px;text-decoration:underline;">Tap to show QR</button>
-        <div class="vd-code" id="vd-code">MGR-4X7K</div>
+        <div style="background:white;border-radius:12px;padding:16px 12px;margin:10px auto;display:inline-block;min-width:180px;">
+          <div style="font-size:10px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Voucher code</div>
+          <div class="vd-code" id="vd-code" style="font-size:26px;letter-spacing:3px;">MGR-4X7K</div>
+          <div style="font-size:9px;color:#aaa;margin-top:6px;">Show this to the cashier</div>
+        </div>
         <div class="vd-exp" id="vd-exp">Expires 28 Oct 2026 · rolls back if unused</div>
         <div class="vd-biz">Kunskombuis · McGregor Winery · Refind · Jimmy's Pub · Temenos · Country Guesthouse</div>
       </div>
-      <div style="background:#faf9f7;border:1px solid #e8e4dc;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:10px;color:#666;line-height:1.6;">Show the QR code to any cashier. They scan it or enter the code manually. No minimum spend.</div>
+      <div style="background:#faf9f7;border:1px solid #e8e4dc;border-radius:8px;padding:9px 11px;margin-bottom:10px;font-size:10px;color:#666;line-height:1.6;">Show this code to any cashier. They type it in and confirm with their PIN. No minimum spend.</div>
       <button class="btn-primary" onclick="appTab('home')">Done</button>
     </div>
     <div id="ps-profile" class="ps ac">
@@ -628,41 +614,12 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         <div id="bd-txn-list"></div>
       </div>
       <div id="bd-redeem" class="ascr">
-        <div style="font-size:12px;color:#666;margin-bottom:12px;line-height:1.6;">Scan the customer's QR code or enter the voucher code manually.</div>
-
-        <div id="bd-scanner-wrap" style="display:none;">
-          <div class="scan-area" onclick="tapToFocus(event)">
-            <video id="bd-video" class="scan-video" playsinline autoplay muted></video>
-            <div class="scan-overlay">
-              <div style="position:relative;width:170px;height:170px;">
-                <div class="scan-frame"></div>
-                <div class="scan-corner tl"></div>
-                <div class="scan-corner tr"></div>
-                <div class="scan-corner bl"></div>
-                <div class="scan-corner br"></div>
-                <div class="scan-line"></div>
-              </div>
-            </div>
-          </div>
-          <div class="scan-hint" id="scan-hint-txt">Hold QR code steady inside the frame · Tap to focus</div>
-          <div style="display:flex;gap:7px;margin-bottom:8px;">
-            <button onclick="stopScanner()" class="btn-outline" style="flex:1;">Cancel</button>
-            <button onclick="toggleTorch()" id="torch-btn" class="btn-outline" style="flex:1;">🔦 Torch</button>
-          </div>
-        </div>
-
-        <div id="bd-manual-wrap">
-          <button class="btn-scan" onclick="startScanner()">
-            <svg width="16" height="16" viewBox="0 0 16 16" fill="none"><rect x="1" y="1" width="5" height="5" rx="1" stroke="white" stroke-width="1.4" fill="none"/><rect x="10" y="1" width="5" height="5" rx="1" stroke="white" stroke-width="1.4" fill="none"/><rect x="1" y="10" width="5" height="5" rx="1" stroke="white" stroke-width="1.4" fill="none"/><rect x="10" y="10" width="5" height="5" rx="1" stroke="white" stroke-width="1.2" fill="none"/><rect x="11.5" y="11.5" width="2" height="2" fill="white"/></svg>
-            Scan QR code
-          </button>
-          <div style="display:flex;align-items:center;gap:8px;margin-bottom:10px;"><div style="flex:1;height:1px;background:#e8e4dc;"></div><span style="font-size:10px;color:#bbb;flex-shrink:0;">or enter manually</span><div style="flex:1;height:1px;background:#e8e4dc;"></div></div>
-          <div class="fg">
-            <div class="fl">Voucher code</div>
-            <div style="display:flex;gap:8px;">
-              <input id="bd-vcode" placeholder="e.g. MGR-4X7K" style="font-family:'Courier New',monospace;font-size:13px;flex:1;text-transform:uppercase;"/>
-              <button onclick="bdLookup()" style="background:#1B5E20;color:white;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Look up</button>
-            </div>
+        <div style="font-size:12px;color:#666;margin-bottom:14px;line-height:1.6;">Customer shows you their voucher code. Enter it below and confirm with your PIN.</div>
+        <div class="fg">
+          <div class="fl">Voucher code</div>
+          <div style="display:flex;gap:8px;">
+            <input id="bd-vcode" placeholder="MGR-XXXX" style="font-family:'Courier New',monospace;font-size:16px;font-weight:700;letter-spacing:2px;flex:1;" maxlength="8" oninput="fmtVoucherInput(this)"/>
+            <button onclick="bdLookup()" style="background:#1B5E20;color:white;border:none;border-radius:8px;padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Look up</button>
           </div>
         </div>
 
@@ -878,7 +835,6 @@ function doBusinessLogin(){
   renderBdTxns();renderBdCusts();bdResetRedeem();bdTab('overview');showView('v-biz-dashboard');
 }
 function bdTab(t){
-  if(t!=='redeem')stopScanner();
   ['overview','redeem','customers','settings'].forEach(s=>{
     document.getElementById('bd-'+s).classList.toggle('active',s===t);
     document.getElementById('bdt-'+s).classList.toggle('active',s===t);
@@ -988,151 +944,15 @@ function doConvert(){
     document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
     selV={val:0,pts:0};updateHero();renderVOpts();
     appTab('voucher');
-    [50,200,500].forEach(delay=>{
-      setTimeout(()=>{
-        const el=document.getElementById('vd-qr');
-        const codeEl=document.getElementById('vd-code');
-        if(el&&codeEl&&codeEl.textContent&&el.children.length===0){
-          drawQR(codeEl.textContent,el,120);
-        }
-      },delay);
-    });
   }catch(e){console.error('doConvert error:',e);}
 }
 
-// ── QR CODE GENERATOR (proven working) ──
-function genQR(text,px){
-  const ALPHA='0123456789ABCDEFGHIJKLMNOPQRSTUVWXYZ $%*+-./:';
-  const t=text.toUpperCase();const N=25;
-  let bits='0010';bits+=t.length.toString(2).padStart(9,'0');
-  for(let i=0;i<t.length-1;i+=2){const v=ALPHA.indexOf(t[i])*45+ALPHA.indexOf(t[i+1]);bits+=v.toString(2).padStart(11,'0');}
-  if(t.length%2===1)bits+=ALPHA.indexOf(t[t.length-1]).toString(2).padStart(6,'0');
-  bits+='0000';while(bits.length%8!==0)bits+='0';
-  const PAD=['11101100','00010001'];let pi=0;while(bits.length<224){bits+=PAD[pi%2];pi++;}
-  const EXP=new Uint8Array(512),LOG=new Uint8Array(256);let xv=1;
-  for(let i=0;i<255;i++){EXP[i]=xv;LOG[xv]=i;xv=xv<<1;if(xv&256)xv^=285;xv&=255;}
-  for(let i=255;i<512;i++)EXP[i]=EXP[i-255];
-  const mul=(a,b)=>(a&&b)?EXP[(LOG[a]+LOG[b])%255]:0;
-  const poly=[0,43,139,206,78,43,239,123,206,214,147,24,99,150,39,243,163,136];
-  const data=[];for(let i=0;i<bits.length;i+=8)data.push(parseInt(bits.slice(i,i+8),2));
-  const msg=[...data,...new Array(16).fill(0)];
-  for(let i=0;i<data.length;i++){const co=msg[i];if(co)for(let j=0;j<poly.length;j++)msg[i+j+1]^=mul(poly[j],co);}
-  let all='';[...data,...msg.slice(data.length)].forEach(b=>all+=b.toString(2).padStart(8,'0'));
-  const M=[],F=[];
-  for(let i=0;i<N;i++){M.push(new Array(N).fill(-1));F.push(new Array(N).fill(0));}
-  const set=(r,c,v,f)=>{if(r>=0&&r<N&&c>=0&&c<N){M[r][c]=v;if(f)F[r][c]=1;}};
-  const finder=(tr,tc)=>{for(let i=0;i<7;i++)for(let j=0;j<7;j++){set(tr+i,tc+j,(i===0||i===6||j===0||j===6||(i>=2&&i<=4&&j>=2&&j<=4))?1:0,true);}for(let k=-1;k<=7;k++){set(tr-1,tc+k,0,true);set(tr+7,tc+k,0,true);set(tr+k,tc-1,0,true);set(tr+k,tc+7,0,true);}};
-  finder(0,0);finder(0,N-7);finder(N-7,0);
-  for(let i=-2;i<=2;i++)for(let j=-2;j<=2;j++)set(18+i,18+j,(Math.abs(i)===2||Math.abs(j)===2||(i===0&&j===0))?1:0,true);
-  for(let i=8;i<N-8;i++){set(6,i,i%2?0:1,true);set(i,6,i%2?0:1,true);}
-  set(N-8,8,1,true);
-  for(let i=0;i<=8;i++){set(8,i,0,true);set(i,8,0,true);}
-  for(let i=N-8;i<N;i++)set(8,i,0,true);for(let i=N-7;i<N;i++)set(i,8,0,true);
-  let bi=0,up=true;
-  for(let col=N-1;col>=1;col-=2){if(col===6)col=5;const rows=up?Array.from({length:N},(_,i)=>N-1-i):Array.from({length:N},(_,i)=>i);for(const row of rows)for(const dc of[0,1]){const c=col-dc;if(c>=0&&!F[row][c])M[row][c]=bi<all.length?parseInt(all[bi++]):0;}up=!up;}
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(!F[r][c]&&(r+c)%2===0)M[r][c]^=1;
-  const fmt=[1,0,1,0,1,0,0,0,0,0,1,0,0,1,0];let fi=0;
-  for(let c=0;c<=5;c++)set(8,c,fmt[fi++]);set(8,7,fmt[fi++]);set(8,8,fmt[fi++]);set(7,8,fmt[fi++]);
-  for(let r=5;r>=0;r--)set(r,8,fmt[fi++]);fi=0;
-  for(let r=N-1;r>=N-7;r--)set(r,8,fmt[fi++]);set(N-8,8,1);for(let c=N-8;c<N;c++)set(8,c,fmt[fi++]);
-  // Create canvas directly via JS and append — no innerHTML, no SVG, no CSS
-  const cell=Math.floor(px/N),q=cell,total=N*cell+q*2;
-  const canvas=document.createElement('canvas');
-  canvas.width=total;canvas.height=total;
-  canvas.style.cssText='display:block;border-radius:6px;';
-  const ctx=canvas.getContext('2d');
-  ctx.fillStyle='#EAF3DE';ctx.fillRect(0,0,total,total);
-  ctx.fillStyle='#2D5016';
-  for(let r=0;r<N;r++)for(let c=0;c<N;c++)if(M[r][c]===1)ctx.fillRect(q+c*cell,q+r*cell,cell,cell);
-  return canvas;
+function fmtVoucherInput(el){
+  let v=el.value.toUpperCase().replace(/[^A-Z0-9]/g,'');
+  if(v.length>3) v=v.slice(0,3)+'-'+v.slice(3,7);
+  el.value=v;
 }
-
-function drawQR(text,container,px){
-  container.innerHTML='';
-  const canvas=genQR(text,px);
-  if(canvas)container.appendChild(canvas);
-}
-
-// ── QR SCANNER (native BarcodeDetector — no external library) ──
-let scanStream=null;let scanInterval=null;let torchOn=false;
-
-function startScanner(){
-  if(!navigator.mediaDevices||!navigator.mediaDevices.getUserMedia){
-    alert('Camera not available. Please use the manual code entry below.');return;
-  }
-  navigator.mediaDevices.getUserMedia({
-    video:{facingMode:{ideal:'environment'},width:{ideal:1280},height:{ideal:720}},audio:false
-  }).then(stream=>{
-    scanStream=stream;
-    const video=document.getElementById('bd-video');
-    video.srcObject=stream;
-    video.play();
-    document.getElementById('bd-scanner-wrap').style.display='block';
-    document.getElementById('bd-manual-wrap').style.display='none';
-    if('BarcodeDetector' in window){
-      const detector=new BarcodeDetector({formats:['qr_code']});
-      scanInterval=setInterval(async()=>{
-        if(video.readyState<2)return;
-        try{
-          const codes=await detector.detect(video);
-          if(codes.length>0){
-            const val=codes[0].rawValue;
-            if(val&&val.startsWith('MGR-')){
-              stopScanner();
-              document.getElementById('bd-vcode').value=val;
-              bdLookup();
-            }
-          }
-        }catch(e){}
-      },250);
-    } else {
-      document.getElementById('scan-hint-txt').textContent='Auto-scan not supported on this browser — enter code manually below.';
-    }
-  }).catch(err=>{
-    if(err.name==='NotAllowedError'){
-      alert('Camera permission denied.\n\nTap the camera icon in your address bar, select Allow, then try again.');
-    } else {
-      alert('Could not start camera. Please use manual code entry below.');
-    }
-  });
-}
-
-function stopScanner(){
-  if(scanInterval){clearInterval(scanInterval);scanInterval=null;}
-  if(scanStream){scanStream.getTracks().forEach(t=>t.stop());scanStream=null;}
-  const video=document.getElementById('bd-video');
-  if(video&&video.srcObject){video.srcObject.getTracks().forEach(t=>t.stop());video.srcObject=null;}
-  document.getElementById('bd-scanner-wrap').style.display='none';
-  document.getElementById('bd-manual-wrap').style.display='block';
-  torchOn=false;
-}
-
-function tapToFocus(e){
-  const video=document.getElementById('bd-video');
-  if(!video||!video.srcObject)return;
-  const track=video.srcObject.getVideoTracks()[0];if(!track)return;
-  const caps=track.getCapabilities?track.getCapabilities():{};
-  const con={};
-  if(caps.focusMode&&caps.focusMode.includes('continuous'))con.focusMode='continuous';
-  if(Object.keys(con).length)track.applyConstraints({advanced:[con]}).catch(()=>{});
-  const dot=document.createElement('div');
-  const rect=e.currentTarget.getBoundingClientRect();
-  dot.style.cssText='position:absolute;width:36px;height:36px;border:2px solid #A8D55A;border-radius:50%;pointer-events:none;transform:translate(-50%,-50%);transition:opacity .6s;z-index:10;';
-  dot.style.left=(e.clientX-rect.left)+'px';dot.style.top=(e.clientY-rect.top)+'px';
-  e.currentTarget.appendChild(dot);
-  setTimeout(()=>{dot.style.opacity='0';setTimeout(()=>dot.remove(),600);},900);
-}
-
-function toggleTorch(){
-  if(!scanStream)return;
-  const track=scanStream.getVideoTracks()[0];if(!track)return;
-  const caps=track.getCapabilities?track.getCapabilities():{};
-  if(!caps.torch){alert('Torch not available on this device.');return;}
-  torchOn=!torchOn;
-  track.applyConstraints({advanced:[{torch:torchOn}]}).catch(()=>{});
-  const btn=document.getElementById('torch-btn');
-  btn.style.background=torchOn?'#2D5016':'';btn.style.color=torchOn?'white':'';
-}
+function stopScanner(){}
 function appTab(t){['home','earn','pin','earned','confirm','voucher','profile'].forEach(s=>document.getElementById('ps-'+s).classList.toggle('active',s===t));['home','wallet','profile'].forEach(s=>{const el=document.getElementById('at-'+s);if(el)el.classList.toggle('active',s===t);});}
 function startEarn(name,rate){curBiz={name,rate};curAmt='';document.getElementById('earn-icon').innerHTML=icon(name,28);document.getElementById('earn-biz-name').textContent=name;document.getElementById('earn-rate-txt').textContent='1 pt per R'+rate;updAmt();buildNumpad('earn-numpad',d=>{if(curAmt.length<6){curAmt+=d;updAmt();}},()=>{curAmt=curAmt.slice(0,-1);updAmt();});appTab('earn');}
 function updAmt(){const n=parseInt(curAmt||'0');document.getElementById('earn-amt').textContent='R '+fmt(n);const pts=n>0?Math.floor(n/curBiz.rate):0;document.getElementById('earn-pts-prev').textContent=n>0?'You will earn +'+pts+' points':'Enter amount';document.getElementById('earn-go').disabled=n<=0;}
