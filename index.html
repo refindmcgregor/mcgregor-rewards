@@ -608,9 +608,95 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
         <div class="fg"><div class="fl">Business email</div><input placeholder="yourname@business.co.za"/></div>
         <div class="fg"><div class="fl">Password</div><input type="password" placeholder="Your password"/></div>
         <div style="margin-bottom:10px;"></div>
-        <button class="btn-primary" style="background:#1B5E20;" onclick="alert('Business dashboard — coming in the full build!\n\nEach business will have their own secure view showing only their own transactions, customers, and settings.')">Sign in to dashboard</button>
+        <button class="btn-primary" style="background:#1B5E20;" onclick="doBusinessLogin()">Sign in to dashboard</button>
         <div style="font-size:10px;color:#aaa;text-align:center;margin-top:10px;">Not registered? <span style="color:#1B5E20;cursor:pointer;font-weight:600;" onclick="showView('v-register')">Apply to join →</span></div>
       </div>
+    </div>
+  </div>
+</div>
+
+<!-- ══ BUSINESS DASHBOARD ══ -->
+<div id="v-biz-dashboard" class="view">
+  <div class="admin-panel">
+    <div class="admin-topbar" style="background:#1B5E20;">
+      <div>
+        <div class="admin-topbar-title" id="bd-biz-name">Kunskombuis — dashboard</div>
+        <div class="admin-topbar-sub" id="bd-biz-email">kunst@mcgregor.co.za · owner view</div>
+      </div>
+      <button class="admin-back" onclick="showView('v-portal')">Sign out</button>
+    </div>
+    <div class="anav">
+      <div class="antab active" id="bdt-overview" onclick="bdTab('overview')">Overview</div>
+      <div class="antab" id="bdt-redeem" onclick="bdTab('redeem')">Redeem ℳ</div>
+      <div class="antab" id="bdt-customers" onclick="bdTab('customers')">Customers</div>
+      <div class="antab" id="bdt-settings" onclick="bdTab('settings')">Settings</div>
+    </div>
+    <div class="abody">
+
+      <div id="bd-overview" class="ascr active">
+        <div class="stat-grid">
+          <div class="stat"><div class="stat-v" id="bd-members-stat">62</div><div class="stat-l">Loyalty members</div><div class="stat-d up">+4 this month</div></div>
+          <div class="stat"><div class="stat-v" id="bd-pts-stat">12 400</div><div class="stat-l">Points awarded</div><div class="stat-d up">all time</div></div>
+          <div class="stat"><div class="stat-v" id="bd-mgr-stat">ℳ 1 250</div><div class="stat-l">Rands redeemed</div><div class="stat-d up">this month</div></div>
+          <div class="stat"><div class="stat-v" id="bd-rate-stat">R5</div><div class="stat-l">Earn rate per pt</div><div class="stat-d" style="color:#888;">1 pt per R5 spent</div></div>
+        </div>
+        <div class="sec">Recent transactions</div>
+        <div id="bd-txn-list"></div>
+      </div>
+
+      <div id="bd-redeem" class="ascr">
+        <div style="font-size:12px;color:#666;margin-bottom:12px;line-height:1.6;">A customer shows you their voucher code. Enter it below and confirm with your business PIN to accept payment.</div>
+        <div class="fg"><div class="fl">Voucher code</div>
+          <div style="display:flex;gap:8px;">
+            <input id="bd-vcode" placeholder="e.g. MGR-4X7K" style="font-family:'Courier New',monospace;font-size:13px;flex:1;"/>
+            <button onclick="bdLookup()" style="background:#1B5E20;color:white;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;white-space:nowrap;">Look up</button>
+          </div>
+        </div>
+        <div id="bd-lookup-result"></div>
+        <div id="bd-pin-section" style="display:none;">
+          <div style="font-size:11px;color:#666;margin-bottom:8px;font-weight:600;">Enter your business PIN to confirm</div>
+          <div style="display:flex;justify-content:center;gap:10px;margin:10px 0;" id="bd-pin-dots">
+            <div class="pd" id="bdp0"></div><div class="pd" id="bdp1"></div><div class="pd" id="bdp2"></div><div class="pd" id="bdp3"></div>
+          </div>
+          <div class="perr" id="bd-pin-err"></div>
+          <div class="numpad" id="bd-numpad"></div>
+        </div>
+        <div id="bd-redeem-success" style="display:none;text-align:center;padding:16px 0;">
+          <div style="width:52px;height:52px;background:#EAF3DE;border-radius:50%;display:flex;align-items:center;justify-content:center;margin:0 auto 10px;">
+            <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M5 13L10.5 18.5L21 8" stroke="#2D5016" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg>
+          </div>
+          <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Voucher accepted!</div>
+          <div style="font-size:12px;color:#666;" id="bd-success-label">ℳ 50 redeemed successfully</div>
+          <button onclick="bdResetRedeem()" style="margin-top:12px;background:#1B5E20;color:white;border:none;border-radius:100px;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;">Redeem another</button>
+        </div>
+      </div>
+
+      <div id="bd-customers" class="ascr">
+        <div class="sec" style="margin-bottom:9px;">Your loyalty members</div>
+        <div id="bd-cust-list"></div>
+      </div>
+
+      <div id="bd-settings" class="ascr">
+        <div style="background:#faf9f7;border:1px solid #e8e4dc;border-radius:10px;padding:14px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:8px;">Change business PIN</div>
+          <div style="font-size:11px;color:#888;margin-bottom:10px;">Current PIN: <span style="font-family:'Courier New',monospace;font-weight:700;color:#1a1a1a;" id="bd-pin-show">1234</span></div>
+          <div style="display:flex;gap:7px;margin-bottom:6px;">
+            <input id="bd-new-pin" type="password" maxlength="4" placeholder="New 4-digit PIN" style="flex:1;"/>
+            <button onclick="bdChangePin()" style="background:#1B5E20;color:white;border:none;border-radius:8px;padding:0 14px;font-size:12px;font-weight:600;cursor:pointer;">Save</button>
+          </div>
+          <div id="bd-pin-msg" style="font-size:11px;min-height:14px;"></div>
+        </div>
+        <div style="background:#faf9f7;border:1px solid #e8e4dc;border-radius:10px;padding:14px;margin-bottom:10px;">
+          <div style="font-size:12px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Earn rate</div>
+          <div style="font-size:11px;color:#888;">Customers earn <strong style="color:#1a1a1a;" id="bd-rate-display">1 pt per R5</strong> spent at your business</div>
+          <div style="font-size:10px;color:#aaa;margin-top:5px;">To change your earn rate please contact the town admin.</div>
+        </div>
+        <div style="background:#EAF3DE;border:1px solid #C0DD97;border-radius:10px;padding:14px;">
+          <div style="font-size:12px;font-weight:700;color:#27500A;margin-bottom:4px;">Monthly listing fee</div>
+          <div style="font-size:11px;color:#3B6D11;line-height:1.6;">R75/month · paid via Yoco · next invoice due <strong>1 June 2026</strong><br>Status: <strong>Paid ✓</strong></div>
+        </div>
+      </div>
+
     </div>
   </div>
 </div>
@@ -752,6 +838,144 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
 <script>
 // ── STATE ──
 function closeOverlay(){document.getElementById('welcome-overlay').classList.add('hidden');}
+const BIZ_LOGINS={
+  'kunst@mcgregor.co.za':{pass:'biz123',bizName:'Kunskombuis',rate:5,pin:'1234',members:62,pts:12400,mgr:1250},
+  'wine@mcgregor.co.za':{pass:'biz123',bizName:'McGregor Winery',rate:8,pin:'9012',members:48,pts:9600,mgr:980},
+  'refind@mcgregor.co.za':{pass:'biz123',bizName:'Refind',rate:10,pin:'3456',members:35,pts:7000,mgr:640},
+  'jimmy@mcgregor.co.za':{pass:'biz123',bizName:"Jimmy's Pub",rate:7,pin:'7890',members:29,pts:5800,mgr:520},
+  'temenos@mcgregor.co.za':{pass:'biz123',bizName:'Temenos',rate:10,pin:'5678',members:22,pts:4400,mgr:490},
+  'guesthouse@mcgregor.co.za':{pass:'biz123',bizName:'Country Guesthouse',rate:50,pin:'2468',members:18,pts:3600,mgr:400},
+};
+let curBizLogin=null;
+let bdPinEntry='';
+let bdFoundVoucher=null;
+
+function doBusinessLogin(){
+  const emailEl=document.querySelector('#v-biz-login input[type!=password]')||document.querySelector('#v-biz-login input');
+  const passEl=document.querySelector('#v-biz-login input[type=password]');
+  const email=(emailEl&&emailEl.value.trim())||'kunst@mcgregor.co.za';
+  const pass=(passEl&&passEl.value)||'biz123';
+  const biz=BIZ_LOGINS[email];
+  if(!biz||biz.pass!==pass){alert('Incorrect credentials.\n\nTry: kunst@mcgregor.co.za / biz123');return;}
+  curBizLogin=biz;
+  document.getElementById('bd-biz-name').textContent=biz.bizName+' — dashboard';
+  document.getElementById('bd-biz-email').textContent=email+' · owner view';
+  document.getElementById('bd-members-stat').textContent=biz.members;
+  document.getElementById('bd-pts-stat').textContent=fmt(biz.pts);
+  document.getElementById('bd-mgr-stat').textContent='ℳ '+fmt(biz.mgr);
+  document.getElementById('bd-rate-stat').textContent='R'+biz.rate;
+  document.getElementById('bd-rate-display').textContent='1 pt per R'+biz.rate;
+  document.getElementById('bd-pin-show').textContent=biz.pin;
+  renderBdTxns();renderBdCusts();bdResetRedeem();
+  bdTab('overview');showView('v-biz-dashboard');
+}
+
+function bdTab(t){
+  ['overview','redeem','customers','settings'].forEach(s=>{
+    document.getElementById('bd-'+s).classList.toggle('active',s===t);
+    document.getElementById('bdt-'+s).classList.toggle('active',s===t);
+  });
+}
+
+function renderBdTxns(){
+  const txns=[
+    {name:'Sarah van Zyl',amt:'R180',pts:'+'+Math.floor(180/(curBizLogin.rate||5)),time:'Today 14:22',type:'earn'},
+    {name:'Voucher MGR-7PQ2',amt:'ℳ50 redeemed',pts:'',time:'Today 12:05',type:'redeem'},
+    {name:'Johan Pieterse',amt:'R95',pts:'+'+Math.floor(95/(curBizLogin.rate||5)),time:'Yesterday',type:'earn'},
+    {name:'Marie Kotze',amt:'R320',pts:'+'+Math.floor(320/(curBizLogin.rate||5)),time:'26 Apr',type:'earn'},
+    {name:'Voucher MGR-3BN8',amt:'ℳ25 redeemed',pts:'',time:'25 Apr',type:'redeem'},
+  ];
+  document.getElementById('bd-txn-list').innerHTML=txns.map(t=>`
+    <div class="biz-row">
+      <div style="width:7px;height:7px;border-radius:50%;background:${t.type==='earn'?'#4A7C23':'#BA7517'};flex-shrink:0;"></div>
+      <div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:600;color:#1a1a1a;">${t.name}</div><div style="font-size:9px;color:#aaa;">${t.time}</div></div>
+      <div style="text-align:right;font-size:11px;"><div style="font-weight:600;color:#1a1a1a;">${t.amt}</div>${t.pts?`<div style="color:#4A7C23;font-size:10px;">${t.pts} pts</div>`:''}</div>
+    </div>`).join('');
+}
+
+function renderBdCusts(){
+  const custs=[
+    {name:'Anna Swart',pts:2340,visits:12},{name:'Sarah van Zyl',pts:1240,visits:8},
+    {name:'Johan Pieterse',pts:890,visits:6},{name:'Marie Kotze',pts:2100,visits:9},
+    {name:'Pieter du Toit',pts:450,visits:3},{name:'Riana Nel',pts:3200,visits:15},
+  ];
+  document.getElementById('bd-cust-list').innerHTML=custs.map(c=>`
+    <div class="mem-row">
+      <div class="av">${c.name.split(' ').map(x=>x[0]).join('')}</div>
+      <div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:600;color:#1a1a1a;">${c.name}</div><div style="font-size:9px;color:#aaa;">${fmt(c.pts)} pts · ${c.visits} visits</div></div>
+    </div>`).join('');
+}
+
+function bdLookup(){
+  const code=document.getElementById('bd-vcode').value.trim().toUpperCase();
+  const res=document.getElementById('bd-lookup-result');
+  const pinSec=document.getElementById('bd-pin-section');
+  document.getElementById('bd-redeem-success').style.display='none';
+  const match=myVouchers&&myVouchers.find(v=>v.code===code&&v.status==='active');
+  if(match){
+    bdFoundVoucher=match;
+    res.innerHTML=`<div style="background:#EAF3DE;border:1px solid #C0DD97;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#27500A;"><strong>ℳ${match.val} voucher found ✓</strong><br><span style="font-size:10px;opacity:.8;">Valid at all McGregor businesses · expires ${match.expStr||'Oct 2026'}</span></div>`;
+    pinSec.style.display='block';bdPinEntry='';updateBdPinDots();buildBdNumpad();
+  } else if(code.startsWith('MGR-')){
+    bdFoundVoucher={val:50,code,status:'active'};
+    res.innerHTML=`<div style="background:#EAF3DE;border:1px solid #C0DD97;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#27500A;"><strong>ℳ50 voucher found ✓</strong><br><span style="font-size:10px;opacity:.8;">Valid at all McGregor businesses</span></div>`;
+    pinSec.style.display='block';bdPinEntry='';updateBdPinDots();buildBdNumpad();
+  } else {
+    bdFoundVoucher=null;
+    res.innerHTML=`<div style="background:#FCEBEB;border:1px solid #F7C1C1;border-radius:8px;padding:10px 12px;margin-bottom:10px;font-size:12px;color:#791F1F;">Voucher not found or already used.</div>`;
+    pinSec.style.display='none';
+  }
+}
+
+function buildBdNumpad(){
+  const el=document.getElementById('bd-numpad');el.innerHTML='';
+  [1,2,3,4,5,6,7,8,9,'',0,'⌫'].forEach(k=>{
+    const d=document.createElement('div');d.className='nb'+(k==='⌫'?' del':'');d.textContent=k===''?'':k;
+    if(k!=='')d.onclick=()=>{
+      if(k==='⌫'){bdPinEntry=bdPinEntry.slice(0,-1);updateBdPinDots();}
+      else if(bdPinEntry.length<4){bdPinEntry+=k;updateBdPinDots();if(bdPinEntry.length===4)checkBdPin();}
+    };else d.style.pointerEvents='none';
+    el.appendChild(d);
+  });
+}
+
+function updateBdPinDots(){for(let i=0;i<4;i++)document.getElementById('bdp'+i).classList.toggle('filled',i<bdPinEntry.length);}
+
+function checkBdPin(){
+  if(!curBizLogin)return;
+  if(bdPinEntry===curBizLogin.pin){
+    if(bdFoundVoucher){bdFoundVoucher.status='used';}
+    document.getElementById('bd-pin-section').style.display='none';
+    document.getElementById('bd-lookup-result').innerHTML='';
+    document.getElementById('bd-success-label').textContent='ℳ'+(bdFoundVoucher?bdFoundVoucher.val:50)+' redeemed successfully';
+    document.getElementById('bd-redeem-success').style.display='block';
+  } else {
+    const dots=document.getElementById('bd-pin-dots');
+    dots.classList.add('wrong');
+    document.getElementById('bd-pin-err').textContent='Incorrect PIN — try again';
+    setTimeout(()=>{dots.classList.remove('wrong');bdPinEntry='';updateBdPinDots();document.getElementById('bd-pin-err').textContent='';},800);
+  }
+}
+
+function bdResetRedeem(){
+  document.getElementById('bd-vcode').value='';
+  document.getElementById('bd-lookup-result').innerHTML='';
+  document.getElementById('bd-pin-section').style.display='none';
+  document.getElementById('bd-redeem-success').style.display='none';
+  bdPinEntry='';bdFoundVoucher=null;
+}
+
+function bdChangePin(){
+  const np=document.getElementById('bd-new-pin').value;
+  const msg=document.getElementById('bd-pin-msg');
+  if(!/^\d{4}$/.test(np)){msg.style.color='#c0392b';msg.textContent='PIN must be exactly 4 digits.';return;}
+  if(curBizLogin)curBizLogin.pin=np;
+  document.getElementById('bd-pin-show').textContent=np;
+  msg.style.color='#4A7C23';msg.textContent='PIN updated successfully ✓';
+  document.getElementById('bd-new-pin').value='';
+}
+
+let myVouchers=[];
 let totalPts=1240,walletTotal=0,selV={val:0,pts:0},curBiz=null,curAmt='',earnPin='',aFilter='pending',nextAppId=2849,newMemCt=0;
 let curUserName='Sarah van Zyl',curUserEmail='sarah@gmail.com',isNew=false;
 
@@ -784,7 +1008,7 @@ function icon(name,size=32){const s=ICONS[name];if(!s)return`<div style="width:$
 function fmt(n){return Math.round(n).toLocaleString('en-ZA').replace(/,/g,' ');}
 function genCode(){const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';return 'MGR-'+Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');}
 function genYoco(n){return 'pay.yoco.com/mcgregor/'+n.toLowerCase().replace(/[^a-z0-9]/g,'-').replace(/-+/g,'-')+'/'+Math.random().toString(36).slice(2,8).toUpperCase();}
-function showView(v){['v-portal','v-customer-login','v-customer-app','v-biz-login','v-admin-login','v-admin','v-register'].forEach(x=>document.getElementById(x).classList.toggle('active',x===v));}
+function showView(v){['v-portal','v-customer-login','v-customer-app','v-biz-login','v-admin-login','v-admin','v-register','v-biz-dashboard'].forEach(x=>document.getElementById(x).classList.toggle('active',x===v));}
 
 // ── CUSTOMER LOGIN / REG ──
 function custTab(t){
@@ -846,6 +1070,7 @@ function doConvert(){
   totalPts-=selV.pts;walletTotal+=selV.val;
   const code=genCode();const exp=new Date('2026-04-28');exp.setMonth(exp.getMonth()+6);
   const es=exp.toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'});
+  myVouchers.push({val:selV.val,pts:selV.pts,code,expStr:es,status:'active'});
   document.getElementById('vd-val').textContent='ℳ '+selV.val;document.getElementById('vd-code').textContent=code;document.getElementById('vd-exp').textContent='Expires '+es+' · rolls back if unused';
   selV={val:0,pts:0};updateHero();renderVOpts();appTab('voucher');
 }
