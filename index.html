@@ -605,9 +605,9 @@ input:focus,select:focus,textarea:focus{border-color:#4A7C23;}
       <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:3px;">Business login</div>
       <div style="font-size:11px;color:#888;margin-bottom:18px;">Sign in to your business dashboard</div>
       <div style="text-align:left;">
-        <div class="fg"><div class="fl">Business email</div><input placeholder="yourname@business.co.za"/></div>
-        <div class="fg"><div class="fl">Password</div><input type="password" placeholder="Your password"/></div>
-        <div style="margin-bottom:10px;"></div>
+        <div class="fg"><div class="fl">Business email</div><input id="biz-email" placeholder="yourname@business.co.za" value="kunst@mcgregor.co.za"/></div>
+        <div class="fg"><div class="fl">Password</div><input id="biz-pass" type="password" placeholder="Your password" value="biz123"/></div>
+        <div class="lerr" id="biz-lerr"></div>
         <button class="btn-primary" style="background:#1B5E20;" onclick="doBusinessLogin()">Sign in to dashboard</button>
         <div style="font-size:10px;color:#aaa;text-align:center;margin-top:10px;">Not registered? <span style="color:#1B5E20;cursor:pointer;font-weight:600;" onclick="showView('v-register')">Apply to join →</span></div>
       </div>
@@ -851,12 +851,13 @@ let bdPinEntry='';
 let bdFoundVoucher=null;
 
 function doBusinessLogin(){
-  const emailEl=document.querySelector('#v-biz-login input[type!=password]')||document.querySelector('#v-biz-login input');
-  const passEl=document.querySelector('#v-biz-login input[type=password]');
-  const email=(emailEl&&emailEl.value.trim())||'kunst@mcgregor.co.za';
-  const pass=(passEl&&passEl.value)||'biz123';
+  const email=document.getElementById('biz-email').value.trim().toLowerCase();
+  const pass=document.getElementById('biz-pass').value;
   const biz=BIZ_LOGINS[email];
-  if(!biz||biz.pass!==pass){alert('Incorrect credentials.\n\nTry: kunst@mcgregor.co.za / biz123');return;}
+  if(!biz||biz.pass!==pass){
+    document.getElementById('biz-lerr').textContent='Incorrect email or password.';return;
+  }
+  document.getElementById('biz-lerr').textContent='';
   curBizLogin=biz;
   document.getElementById('bd-biz-name').textContent=biz.bizName+' — dashboard';
   document.getElementById('bd-biz-email').textContent=email+' · owner view';
