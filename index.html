@@ -972,6 +972,7 @@ function initApp(){
 function renderBizGrid(query='',cat='All'){
   const q=query.toLowerCase().trim();
   const filtered=BIZ.filter(b=>{
+    if(b.suspended)return false;
     const matchQ=!q||b.name.toLowerCase().includes(q)||(b.cat&&b.cat.toLowerCase().includes(q));
     const matchC=cat==='All'||b.cat===cat;
     return matchQ&&matchC;
@@ -1080,7 +1081,26 @@ function approveApp(id){const a=APPS.find(x=>x.id===id);if(!a)return;a.status='a
 function rejectApp(id){const a=APPS.find(x=>x.id===id);if(a){a.status='rejected';rAApps();updBadges();}}
 function toggleDet(id){const el=document.getElementById(id);if(el)el.classList.toggle('open');}
 function fApps(f){aFilter=f;['pending','approved','rejected'].forEach(x=>document.getElementById('afb-'+x).classList.toggle('sel',x===f));rAApps();}
-function rABiz(){document.getElementById('a-biz-list').innerHTML=BIZ.map((b,i)=>`<div class="biz-row">${icon(b.name,20)}<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:600;color:#1a1a1a;">${b.name}</div><div style="font-size:9px;color:#aaa;">${b.email} · ${b.members} members · 1 pt per R${b.rate}</div></div><span class="pill pill-${b.billing==='paid'?'paid':b.billing==='overdue'?'overdue':'invoiced'}" style="margin-right:5px;">${b.billing==='paid'?'Paid':b.billing==='overdue'?'Overdue':'Invoiced'}</span><span class="pill pill-active">Active</span></div>`).join('');}
+function rABiz(){
+  document.getElementById('a-biz-list').innerHTML=BIZ.map((b,i)=>`
+    <div class="biz-row" style="align-items:center;gap:8px;">
+      ${icon(b.name,20)}
+      <div style="flex:1;min-width:0;">
+        <div style="font-size:11px;font-weight:600;color:#1a1a1a;">${b.name}</div>
+        <div style="font-size:9px;color:#aaa;">${b.email} · ${b.members} members · 1 pt per R${b.rate}</div>
+      </div>
+      <span class="pill pill-${b.billing==='paid'?'paid':b.billing==='overdue'?'overdue':'invoiced'}" style="margin-right:4px;">${b.billing==='paid'?'Paid':b.billing==='overdue'?'Overdue':'Invoiced'}</span>
+      <span class="pill" style="background:${b.suspended?'#fde8e8':'#EAF3DE'};color:${b.suspended?'#c0392b':'#2D5016'};margin-right:4px;">${b.suspended?'Suspended':'Active'}</span>
+      <button onclick="toggleBizStatus(${i})" style="font-size:9px;font-weight:600;padding:3px 8px;border-radius:100px;border:1px solid ${b.suspended?'#2D5016':'#e74c3c'};background:none;color:${b.suspended?'#2D5016':'#e74c3c'};cursor:pointer;">${b.suspended?'Reinstate':'Suspend'}</button>
+    </div>`).join('');
+}
+function toggleBizStatus(i){
+  BIZ[i].suspended=!BIZ[i].suspended;
+  rABiz();
+  showToast(BIZ[i].suspended?BIZ[i].name+' suspended':BIZ[i].name+' reinstated ✓');
+  // Re-render customer biz grid if logged in
+  renderBizGrid(document.getElementById('biz-search')?.value||'',activeCat);
+}
 function rABilling(){const paid=BIZ.filter(b=>b.billing==='paid').length;document.getElementById('a-bill-rev').textContent='R'+fmt(paid*75)+' / R'+fmt(BIZ.length*75);document.getElementById('a-billing-list').innerHTML=BIZ.map((b,i)=>`<div class="billing-card ${b.billing}"><div style="display:flex;align-items:center;gap:8px;">${icon(b.name,20)}<div style="flex:1;min-width:0;"><div style="font-size:11px;font-weight:600;color:#1a1a1a;">${b.name}</div><div style="font-size:9px;color:#aaa;">R75 · May 2026 · ${b.email}</div></div><span class="pill pill-${b.billing==='paid'?'paid':b.billing==='overdue'?'overdue':'invoiced'}" style="margin-right:5px;">${b.billing==='paid'?'Paid':b.billing==='overdue'?'Overdue':'Invoiced'}</span>${b.billing==='paid'?'<span style="font-size:10px;color:#4A7C23;font-weight:700;">✓</span>':`<button class="send-yoco-btn" onclick="sendYoco(${i})">${b.yoco?'Resend':'Send'} Yoco link</button>`}</div>${b.yoco&&b.billing!=='paid'?`<div class="yoco-row"><span class="yoco-badge">YOCO</span><span class="yoco-url">https://${b.yoco}</span><button class="sim-btn" onclick="simPaid(${i})">Simulate paid</button></div>`:''}</div>`).join('');}
 function sendYoco(i){if(!BIZ[i].yoco)BIZ[i].yoco=genYoco(BIZ[i].name);showToast('Payment link generated and emailed to '+BIZ[i].email);rABilling();}
 function simPaid(i){BIZ[i].billing='paid';BIZ[i].yoco=null;ACT.unshift({col:'#4A7C23',text:'Yoco payment received · '+BIZ[i].name+' · R75',time:'Just now'});showToast('Yoco webhook received · '+BIZ[i].name+' · marked as paid · listing reinstated');rABilling();rAOverview();}
