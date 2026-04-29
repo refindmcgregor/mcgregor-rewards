@@ -497,6 +497,23 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
         <div class="tx-row"><span style="color:#888;">Earn rate</span><span id="bs-rate" style="font-weight:600;color:#2D5016;">-</span></div>
         <div class="tx-row"><span style="color:#888;">Billing</span><span id="bs-billing" style="font-weight:600;">-</span></div>
       </div>
+      <div class="sec">Request earn rate change</div>
+      <div style="font-size:11px;color:#888;margin-bottom:10px;line-height:1.6;">Your current rate is set by the admin. You can request a change — we'll review and update it within 2 business days.</div>
+      <div class="fg">
+        <div class="fl">Requested rate</div>
+        <select id="bd-rate-req" style="font-size:13px;">
+          <option value="5">1 pt per R5</option>
+          <option value="7">1 pt per R7</option>
+          <option value="10" selected>1 pt per R10</option>
+          <option value="15">1 pt per R15</option>
+          <option value="20">1 pt per R20</option>
+          <option value="25">1 pt per R25</option>
+          <option value="50">1 pt per R50</option>
+        </select>
+      </div>
+      <div class="fg"><div class="fl">Reason for change</div><input id="bd-rate-reason" placeholder="e.g. Higher spend per visit average"/></div>
+      <button onclick="requestRateChange()" style="width:100%;background:#1B5E20;color:white;border:none;border-radius:100px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;margin-bottom:16px;">Submit rate change request</button>
+      <div style="border-top:1px solid #f0ece4;margin-bottom:16px;"></div>
       <div class="sec">Change PIN</div>
       <div class="fg"><div class="fl">New PIN (4 digits)</div><input id="bd-new-pin" type="password" maxlength="4" placeholder="••••"/></div>
       <button onclick="changePIN()" style="width:100%;background:#1B5E20;color:white;border:none;border-radius:100px;padding:11px;font-size:13px;font-weight:600;cursor:pointer;">Update PIN</button>
@@ -584,6 +601,20 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="row2">
         <div class="fg"><div class="fl">Email *</div><input id="rb-email" type="email" placeholder="owner@email.com"/></div>
         <div class="fg"><div class="fl">Password *</div><input id="rb-pass" type="password" placeholder="Min 8 chars"/></div>
+      </div>
+      <div class="fg">
+        <div class="fl">Proposed earn rate *</div>
+        <select id="rb-rate">
+          <option value="">Select earn rate...</option>
+          <option value="5">1 pt per R5 — high value / frequent visits</option>
+          <option value="7">1 pt per R7</option>
+          <option value="10" selected>1 pt per R10 — standard</option>
+          <option value="15">1 pt per R15</option>
+          <option value="20">1 pt per R20</option>
+          <option value="25">1 pt per R25</option>
+          <option value="50">1 pt per R50 — accommodation / high spend</option>
+        </select>
+        <div style="font-size:10px;color:#aaa;margin-top:4px;">Admin will review and confirm your rate on approval.</div>
       </div>
       <div class="fg">
         <div class="fl">Business logo <span style="color:#aaa;font-weight:400;">(optional)</span></div>
@@ -1012,6 +1043,9 @@ async function initBizDash(){
   document.getElementById('bs-name').textContent=curBusiness.name;
   document.getElementById('bs-rate').textContent='1 pt per R'+curBusiness.earn_rate;
   document.getElementById('bs-billing').textContent=curBusiness.billing_status||'active';
+  // Pre-select current rate in dropdown
+  const rateReq=document.getElementById('bd-rate-req');
+  if(rateReq)rateReq.value=curBusiness.earn_rate||10;
   await loadBizStats();
   bdTab('overview');
 }
@@ -1111,6 +1145,30 @@ async function changePIN(){
   hideLoading();showToast('PIN updated ✓');
 }
 
+async function requestRateChange(){
+  const rate=document.getElementById('bd-rate-req').value;
+  const reason=document.getElementById('bd-rate-reason').value.trim();
+  if(!reason){showToast('Please add a reason for the change');return;}
+  if(parseInt(rate)===curBusiness.earn_rate){showToast('That\'s already your current rate');return;}
+  // Store as an application note — in production this would create a rate change request record
+  showLoading('Submitting request...');
+  await sb.from('applications').insert({
+    business_name:curBusiness.name+' — Rate Change Request',
+    category:'Rate change',
+    address:curBusiness.address||'',
+    owner_name:curBusiness.owner_name||curBusiness.name,
+    email:curBusiness.email,
+    billing_email:curBusiness.billing_email||curBusiness.email,
+    earn_rate:parseInt(rate),
+    status:'pending',
+    phone:null,owner_password:'rate-change-only',
+    logo:null
+  });
+  hideLoading();
+  showToast('Rate change request submitted ✓');
+  document.getElementById('bd-rate-reason').value='';
+}
+
 // ══ ADMIN AUTH ══
 async function doAdminLogin(){
   const email=document.getElementById('adm-email').value.trim();
@@ -1174,11 +1232,27 @@ function renderAdminApps(){
             <div><div class="app-name">${a.business_name||'-'}</div><div class="app-meta">${a.category||''} · ${a.address||''}</div></div>
             <span class="pill pill-${a.status}">${a.status}</span>
           </div>
-          ${a.status==='pending'?`<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;">
-            <button class="btn-approve" onclick="approveApp('${a.id}')">✓ Approve</button>
-            <button class="btn-reject" onclick="rejectApp('${a.id}')">✕ Decline</button>
-          </div>`:''}
-          <div style="margin-top:6px;font-size:10px;color:#888;">Owner: ${a.owner_name||'-'} · ${a.email||'-'}</div>
+          <div style="font-size:10px;color:#888;margin-top:3px;">Owner: ${a.owner_name||'-'} · ${a.email||'-'}</div>
+          <div style="display:flex;align-items:center;gap:8px;margin-top:6px;background:#f8f8f8;border-radius:8px;padding:7px 10px;">
+            <span style="font-size:10px;color:#666;font-weight:600;">Earn rate:</span>
+            <span style="font-size:10px;color:#888;">Proposed: 1pt/R${a.earn_rate||10}</span>
+            ${a.status==='pending'
+              ?`<select id="rate-${a.id}" style="font-size:10px;padding:3px 6px;border-radius:6px;border:1px solid #ddd;margin-left:auto;cursor:pointer;">
+                <option value="5" ${(a.earn_rate||10)==5?'selected':''}>Set R5</option>
+                <option value="7" ${(a.earn_rate||10)==7?'selected':''}>Set R7</option>
+                <option value="10" ${(a.earn_rate||10)==10?'selected':''}>Set R10</option>
+                <option value="15" ${(a.earn_rate||10)==15?'selected':''}>Set R15</option>
+                <option value="20" ${(a.earn_rate||10)==20?'selected':''}>Set R20</option>
+                <option value="25" ${(a.earn_rate||10)==25?'selected':''}>Set R25</option>
+                <option value="50" ${(a.earn_rate||10)==50?'selected':''}>Set R50</option>
+              </select>`
+              :`<span style="font-size:10px;font-weight:700;color:#2D5016;margin-left:auto;">Approved at R${a.earn_rate||10}</span>`}
+          </div>
+          ${a.status==='pending'
+            ?`<div style="display:flex;gap:5px;margin-top:6px;flex-wrap:wrap;">
+                <button class="btn-approve" onclick="approveApp('${a.id}')">✓ Approve</button>
+                <button class="btn-reject" onclick="rejectApp('${a.id}')">✕ Decline</button>
+              </div>`:''}
         </div>
       </div>
     </div>`).join('')
@@ -1187,18 +1261,20 @@ function renderAdminApps(){
 
 async function approveApp(id){
   const app=(window._apps||[]).find(a=>a.id===id);if(!app)return;
+  const rateEl=document.getElementById('rate-'+id);
+  const finalRate=rateEl?parseInt(rateEl.value):(app.earn_rate||10);
   showLoading('Approving...');
-  // Create business account
   await sb.from('businesses').insert({
     name:app.business_name,category:app.category,address:app.address,
     owner_name:app.owner_name,email:app.email,billing_email:app.billing_email,
-    earn_rate:app.earn_rate||10,billing_status:'invoiced',status:'active',
-    pin:'1234',password_hash:app.owner_password||'changeme123'
+    earn_rate:finalRate,billing_status:'invoiced',status:'active',
+    pin:'1234',password_hash:app.owner_password||'changeme123',
+    phone:app.phone||null,logo:app.logo||null
   });
-  await sb.from('applications').update({status:'approved'}).eq('id',id);
-  app.status='approved';
-  hideLoading();showToast('Business approved ✓');
-  renderAdminApps();
+  await sb.from('applications').update({status:'approved',earn_rate:finalRate}).eq('id',id);
+  app.status='approved';app.earn_rate=finalRate;
+  hideLoading();showToast('Approved ✓ · 1pt per R'+finalRate);
+  await loadAdminData();renderAdminApps();
 }
 
 async function rejectApp(id){
@@ -1281,6 +1357,7 @@ async function submitBizApp(){
   const email=document.getElementById('rb-email').value.trim();
   const pass=document.getElementById('rb-pass').value;
   const be=document.getElementById('rb-billemail').value.trim();
+  const rate=parseInt(document.getElementById('rb-rate').value)||10;
   const c1=document.getElementById('rb-c1').checked;
   const c2=document.getElementById('rb-c2').checked;
   const err=document.getElementById('rb-err');
@@ -1296,7 +1373,7 @@ async function submitBizApp(){
   }
   const {data,error}=await sb.from('applications').insert({
     business_name:name,category:cat,address:addr,owner_name:owner,
-    email,billing_email:be,earn_rate:10,status:'pending',
+    email,billing_email:be,earn_rate:rate,status:'pending',
     phone,owner_password:pass,logo:logoB64
   }).select().single();
   hideLoading();
