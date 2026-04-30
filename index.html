@@ -517,6 +517,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="fg">
         <div class="fl">Requested rate</div>
         <select id="bd-rate-req" style="font-size:13px;">
+          <option value="2">1 pt per R2</option>
           <option value="5">1 pt per R5</option>
           <option value="7">1 pt per R7</option>
           <option value="10" selected>1 pt per R10</option>
@@ -627,6 +628,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
         <div class="fl">Proposed earn rate *</div>
         <select id="rb-rate">
           <option value="">Select earn rate...</option>
+          <option value="2">1 pt per R2 — very high value / low spend</option>
           <option value="5">1 pt per R5 — high value / frequent visits</option>
           <option value="7">1 pt per R7</option>
           <option value="10" selected>1 pt per R10 — standard</option>
@@ -1307,7 +1309,8 @@ function renderAdminApps(){
             <span style="font-size:10px;color:#888;">Proposed: 1pt/R${a.earn_rate||10}</span>
             ${a.status==='pending'
               ?`<select id="rate-${a.id}" style="font-size:10px;padding:3px 6px;border-radius:6px;border:1px solid #ddd;margin-left:auto;cursor:pointer;">
-                <option value="5" ${(a.earn_rate||10)==5?'selected':''}>Set R5</option>
+                <option value="2">1pt per R2</option>
+          <option value="5" ${(a.earn_rate||10)==5?'selected':''}>Set R5</option>
                 <option value="7" ${(a.earn_rate||10)==7?'selected':''}>Set R7</option>
                 <option value="10" ${(a.earn_rate||10)==10?'selected':''}>Set R10</option>
                 <option value="15" ${(a.earn_rate||10)==15?'selected':''}>Set R15</option>
@@ -1398,6 +1401,7 @@ function renderAdminBiz(businesses){
       <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid #f5f5f5;">
         <span style="font-size:10px;color:#666;font-weight:600;">Earn rate:</span>
         <select id="er-${b.id}" style="font-size:10px;padding:3px 6px;border-radius:6px;border:1px solid #ddd;cursor:pointer;">
+          <option value="2">1pt per R2</option>
           <option value="5" ${b.earn_rate==5?'selected':''}>1pt per R5</option>
           <option value="7" ${b.earn_rate==7?'selected':''}>1pt per R7</option>
           <option value="10" ${b.earn_rate==10?'selected':''}>1pt per R10</option>
