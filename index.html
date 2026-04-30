@@ -1201,6 +1201,12 @@ async function loadAdminData(){
   document.getElementById('ad-businesses').textContent=fmt(bizList.filter(b=>b.status==='active').length);
   document.getElementById('ad-pts').textContent=fmt(totalPts);
   document.getElementById('ad-vouchers').textContent=fmt(Array.isArray(vouchers)?vouchers.length:0);
+  window._adminStats={
+    members:fmt(allMembers.length),
+    businesses:fmt(bizList.filter(b=>b.status==='active').length),
+    pts:fmt(totalPts),
+    vouchers:fmt(Array.isArray(vouchers)?vouchers.length:0)
+  };
   window._apps=appList;
   window._businesses=bizList;
   const pending=appList.filter(a=>a.status==='pending').length;
@@ -1216,6 +1222,15 @@ function adTab(t){
     const el=document.getElementById('ad-'+s);if(el)el.style.display=s===t?'block':'none';
     const tab=document.getElementById('adt-'+s);if(tab)tab.classList.toggle('active',s===t);
   });
+  if(t==='overview'&&window._adminStats){
+    document.getElementById('ad-members').textContent=window._adminStats.members;
+    document.getElementById('ad-businesses').textContent=window._adminStats.businesses;
+    document.getElementById('ad-pts').textContent=window._adminStats.pts;
+    document.getElementById('ad-vouchers').textContent=window._adminStats.vouchers;
+  }
+  if(t==='businesses')renderAdminBiz(window._businesses||[]);
+  if(t==='members')renderAdminMembers(allMembers||[]);
+  if(t==='applications')renderAdminApps();
 }
 
 function fApps(f){
