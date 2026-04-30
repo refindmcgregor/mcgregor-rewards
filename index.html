@@ -456,6 +456,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="antab active" id="bdt-overview" onclick="bdTab('overview')">Overview</div>
       <div class="antab" id="bdt-redeem" onclick="bdTab('redeem')">Redeem ℳ</div>
       <div class="antab" id="bdt-transactions" onclick="bdTab('transactions')">Transactions</div>
+      <div class="antab" id="bdt-vouchers" onclick="bdTab('vouchers')">Vouchers</div>
       <div class="antab" id="bdt-settings" onclick="bdTab('settings')">Settings</div>
     </div>
 
@@ -498,6 +499,10 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
 
     <div id="bd-transactions" class="ascr" style="display:none;">
       <div id="bd-tx-list"><div style="font-size:12px;color:#aaa;padding:8px 0;">No transactions yet.</div></div>
+    </div>
+
+    <div id="bd-vouchers" class="ascr" style="display:none;">
+      <div id="bd-vou-list"><div style="font-size:12px;color:#aaa;padding:8px 0;">No vouchers redeemed yet.</div></div>
     </div>
 
     <div id="bd-settings" class="ascr" style="display:none;">
@@ -1093,10 +1098,11 @@ async function loadBizStats(){
 }
 
 function bdTab(t){
-  ['overview','redeem','transactions','settings'].forEach(s=>{
+  ['overview','redeem','transactions','vouchers','settings'].forEach(s=>{
     const el=document.getElementById('bd-'+s);if(el)el.style.display=s===t?'block':'none';
     const tab=document.getElementById('bdt-'+s);if(tab)tab.classList.toggle('active',s===t);
   });
+  if(t==='vouchers')loadBizVouchers();
 }
 
 // ══ VOUCHER REDEMPTION ══
@@ -1160,6 +1166,22 @@ function bdResetRedeem(){
   document.getElementById('bd-redeem-success').style.display='none';
   curVoucher=null;bdPin='';
 }
+async function loadBizVouchers(){
+  document.getElementById('bd-vou-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
+  const {data:vouchers}=await sb.from('vouchers').select('*').eq('redeemed_by_business_id',curBusiness.id).eq('status','redeemed').order('redeemed_at',{ascending:false});
+  const list=vouchers||[];
+  document.getElementById('bd-vou-list').innerHTML=list.length
+    ?list.map(v=>`
+      <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5;">
+        <div>
+          <div style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:#2D5016;">${v.code}</div>
+          <div style="font-size:10px;color:#aaa;margin-top:2px;">${v.redeemed_at?new Date(v.redeemed_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):''}</div>
+        </div>
+        <div style="font-size:16px;font-weight:800;color:#2D5016;">ℳ${v.value_mgr}</div>
+      </div>`).join('')
+    :'<div style="font-size:12px;color:#aaa;padding:8px 0;">No vouchers redeemed yet.</div>';
+}
+
 async function changePIN(){
   const newPin=document.getElementById('bd-new-pin').value;
   if(!/^\d{4}$/.test(newPin)){showToast('PIN must be exactly 4 digits');return;}
