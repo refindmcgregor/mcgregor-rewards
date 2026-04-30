@@ -1,0 +1,24 @@
+{
+  "name": "Breede River Valley Rewards",
+  "short_name": "BRV Rewards",
+  "description": "McGregor Village Loyalty Programme",
+  "start_url": "/",
+  "display": "standalone",
+  "background_color": "#f0ede4",
+  "theme_color": "#2D5016",
+  "orientation": "portrait",
+  "icons": [
+    {
+      "src": "icon-192.png",
+      "sizes": "192x192",
+      "type": "image/png",
+      "purpose": "any maskable"
+    },
+    {
+      "src": "icon-512.png",
+      "sizes": "512x512",
+      "type": "image/png",
+      "purpose": "any maskable"
+    }
+  ]
+}
