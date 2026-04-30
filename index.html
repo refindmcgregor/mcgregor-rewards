@@ -872,13 +872,13 @@ async function submitEvent(){
   let imgB64=null;
   if(imgFile){imgB64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(imgFile);});}
   showLoading('Submitting event...');
-  const {data,error}=await sb.from('events').insert({
-    business_id:curBusiness.id,
-    business_name:curBusiness.name,
-    title,category:cat,event_date:date,
-    event_time:time||null,price:price||null,
-    description:desc,image:imgB64,status:'pending'
-  }).select().single();
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+  const evRes=await fetch(`${SUPABASE_URL}/rest/v1/events`,{
+    method:'POST',headers,
+    body:JSON.stringify({business_id:curBusiness.id,business_name:curBusiness.name,title,category:cat,event_date:date,event_time:time||null,price:price||null,description:desc,image:imgB64,status:'pending'})
+  });
+  const data=await evRes.json();
+  const error=!evRes.ok;
   hideLoading();
   if(error){err.textContent='Submission failed. Please try again.';return;}
   showToast('Event submitted for approval ✓');
@@ -895,8 +895,10 @@ async function submitEvent(){
 }
 
 async function loadBizEvents(){
-  const {data}=await sb.from('events').select('*').eq('business_id',curBusiness.id).order('created_at',{ascending:false});
-  const list=data||[];
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/events?business_id=eq.${curBusiness.id}&order=created_at.desc&select=*`,{headers});
+  const data=await res.json();
+  const list=Array.isArray(data)?data:[];
   document.getElementById('bd-events-list').innerHTML=list.length
     ?list.map(e=>`
       <div style="border:1px solid #f0f0f0;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
@@ -1204,15 +1206,21 @@ async function doCustomerRegister(){
   if(!em.includes('@')){err.textContent='Please enter a valid email.';return;}
   showLoading('Creating account...');
   // Check email not taken
-  const {data:existing}=await sb.from('members').select('id').eq('email',em).single();
-  if(existing){hideLoading();err.textContent='An account with this email already exists.';return;}
-  const {data,error}=await sb.from('members').insert({
-    first_name:fn,last_name:ln,mobile:mob,email:em,
-    password_hash:pw,points:0,wallet_balance:0,tier:'Bronze'
-  }).select().single();
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+  // Check email not taken
+  const chkRes=await fetch(`${SUPABASE_URL}/rest/v1/members?email=eq.${encodeURIComponent(em)}&select=id`,{headers});
+  const existing=await chkRes.json();
+  if(existing&&existing.length>0){hideLoading();err.textContent='An account with this email already exists.';return;}
+  const regRes=await fetch(`${SUPABASE_URL}/rest/v1/members`,{
+    method:'POST',headers,
+    body:JSON.stringify({first_name:fn,last_name:ln,mobile:mob,email:em,password_hash:pw,points:0,wallet_balance:0,tier:'Bronze'})
+  });
+  const data=await regRes.json();
+  const regData=Array.isArray(data)?data[0]:data;
+  const error=!regRes.ok;
   hideLoading();
   if(error){err.textContent='Registration failed. Please try again.';return;}
-  curMember=data;
+  curMember=regData;
   err.textContent='';
   initCustomerApp();
   showView('v-customer-app');
@@ -1256,8 +1264,10 @@ function updateHero(){
 }
 
 async function loadBusinesses(){
-  const {data}=await sb.from('businesses').select('*').eq('status','active');
-  bizList=data||[];
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/businesses?status=eq.active&select=*`,{headers});
+  bizList=await res.json();
+  if(!Array.isArray(bizList))bizList=[];
   renderCats();
   renderBizGrid();
 }
@@ -1350,14 +1360,18 @@ async function checkPin(){
   const mult=tierMultiplier(curMember.points||0);
   const earned=Math.floor(Math.floor(n/rate)*mult);
   showLoading('Recording transaction...');
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
   // Save transaction
-  await sb.from('transactions').insert({
-    member_id:curMember.id,business_id:curBiz.id,
-    amount_rands:n,points_earned:earned,confirmed_by_pin:true
+  await fetch(`${SUPABASE_URL}/rest/v1/transactions`,{
+    method:'POST',headers,
+    body:JSON.stringify({member_id:curMember.id,business_id:curBiz.id,amount_rands:n,points_earned:earned,confirmed_by_pin:true})
   });
   // Update member points
   const newPts=(curMember.points||0)+earned;
-  await sb.from('members').update({points:newPts,tier:getTier(newPts)}).eq('id',curMember.id);
+  await fetch(`${SUPABASE_URL}/rest/v1/members?id=eq.${curMember.id}`,{
+    method:'PATCH',headers,
+    body:JSON.stringify({points:newPts,tier:getTier(newPts)})
+  });
   curMember.points=newPts;
   curMember.tier=getTier(newPts);
   hideLoading();
@@ -1400,13 +1414,20 @@ async function doConvert(){
   const exp=new Date();exp.setMonth(exp.getMonth()+6);
   const newPts=(curMember.points||0)-selV.pts;
   const newWallet=(curMember.wallet_balance||0)+selV.val;
-  // Save voucher
-  const {data:voucher}=await sb.from('vouchers').insert({
-    member_id:curMember.id,value_mgr:selV.val,points_cost:selV.pts,
-    code,status:'active',expires_at:exp.toISOString()
-  }).select().single();
-  // Update member
-  await sb.from('members').update({points:newPts,wallet_balance:newWallet,tier:getTier(newPts)}).eq('id',curMember.id);
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+  // Save voucher via REST
+  const vRes=await fetch(`${SUPABASE_URL}/rest/v1/vouchers`,{
+    method:'POST',headers,
+    body:JSON.stringify({member_id:curMember.id,value_mgr:selV.val,points_cost:selV.pts,code,status:'active',expires_at:exp.toISOString()})
+  });
+  const vData=await vRes.json();
+  if(!vRes.ok){hideLoading();showToast('Failed to create voucher. Please try again.');console.error('Voucher error:',vData);return;}
+  // Update member via REST
+  await fetch(`${SUPABASE_URL}/rest/v1/members?id=eq.${curMember.id}`,{
+    method:'PATCH',
+    headers:{...headers,'Prefer':'return=minimal'},
+    body:JSON.stringify({points:newPts,wallet_balance:newWallet,tier:getTier(newPts)})
+  });
   curMember.points=newPts;curMember.wallet_balance=newWallet;curMember.tier=getTier(newPts);
   hideLoading();
   // Show voucher
@@ -1475,17 +1496,23 @@ async function initBizDash(){
 }
 
 async function loadBizStats(){
-  const {data:txs}=await sb.from('transactions').select('*').eq('business_id',curBusiness.id);
-  const {data:vouchers}=await sb.from('vouchers').select('*').eq('redeemed_by_business_id',curBusiness.id);
-  const totalPts=(txs||[]).reduce((a,t)=>a+(t.points_earned||0),0);
-  const totalMgr=(vouchers||[]).reduce((a,v)=>a+(v.value_mgr||0),0);
-  const uniqueMembers=new Set((txs||[]).map(t=>t.member_id)).size;
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+  const [txRes,vRes]=await Promise.all([
+    fetch(`${SUPABASE_URL}/rest/v1/transactions?business_id=eq.${curBusiness.id}&select=*`,{headers}),
+    fetch(`${SUPABASE_URL}/rest/v1/vouchers?redeemed_by_business_id=eq.${curBusiness.id}&select=*`,{headers})
+  ]);
+  const txs=await txRes.json();
+  const vouchers=await vRes.json();
+  const txList=Array.isArray(txs)?txs:[];
+  const vList=Array.isArray(vouchers)?vouchers:[];
+  const totalPts=txList.reduce((a,t)=>a+(t.points_earned||0),0);
+  const totalMgr=vList.reduce((a,v)=>a+(v.value_mgr||0),0);
+  const uniqueMembers=new Set(txList.map(t=>t.member_id)).size;
   document.getElementById('bd-members').textContent=fmt(uniqueMembers);
   document.getElementById('bd-pts').textContent=fmt(totalPts);
   document.getElementById('bd-brv').textContent='ℬ'+fmt(totalMgr);
-  document.getElementById('bd-txcount').textContent=fmt((txs||[]).length);
-  // Recent transactions
-  const recent=(txs||[]).slice(-10).reverse();
+  document.getElementById('bd-txcount').textContent=fmt(txList.length);
+  const recent=txList.slice(-10).reverse();
   document.getElementById('bd-recent-list').innerHTML=recent.length
     ?recent.map(t=>`<div class="tx-row"><span>R${fmt(t.amount_rands)}</span><span style="color:#4A7C23;font-weight:600;">+${t.points_earned} pts</span><span style="color:#aaa;">${new Date(t.created_at).toLocaleDateString('en-ZA')}</span></div>`).join('')
     :'<div style="font-size:12px;color:#aaa;padding:8px 0;">No transactions yet.</div>';
@@ -1545,12 +1572,21 @@ async function confirmRedeem(){
     return;
   }
   showLoading('Redeeming voucher...');
+  const rHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
   // Mark voucher redeemed
-  await sb.from('vouchers').update({status:'redeemed',redeemed_at:new Date().toISOString(),redeemed_by_business_id:curBusiness.id}).eq('id',curVoucher.id);
-  // Update member wallet
-  const {data:member}=await sb.from('members').select('wallet_balance').eq('id',curVoucher.member_id).single();
+  await fetch(`${SUPABASE_URL}/rest/v1/vouchers?id=eq.${curVoucher.id}`,{
+    method:'PATCH',headers:rHeaders,
+    body:JSON.stringify({status:'redeemed',redeemed_at:new Date().toISOString(),redeemed_by_business_id:curBusiness.id})
+  });
+  // Get member wallet balance
+  const mRes=await fetch(`${SUPABASE_URL}/rest/v1/members?id=eq.${curVoucher.member_id}&select=wallet_balance`,{headers:rHeaders});
+  const mData=await mRes.json();
+  const member=Array.isArray(mData)&&mData.length>0?mData[0]:null;
   if(member){
-    await sb.from('members').update({wallet_balance:Math.max(0,(member.wallet_balance||0)-curVoucher.value_mgr)}).eq('id',curVoucher.member_id);
+    await fetch(`${SUPABASE_URL}/rest/v1/members?id=eq.${curVoucher.member_id}`,{
+      method:'PATCH',headers:rHeaders,
+      body:JSON.stringify({wallet_balance:Math.max(0,(member.wallet_balance||0)-curVoucher.value_mgr)})
+    });
   }
   hideLoading();
   document.getElementById('bd-lookup-result').innerHTML='';
@@ -1568,8 +1604,10 @@ function bdResetRedeem(){
 }
 async function loadBizVouchers(){
   document.getElementById('bd-vou-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
-  const {data:vouchers}=await sb.from('vouchers').select('*').eq('redeemed_by_business_id',curBusiness.id).eq('status','redeemed').order('redeemed_at',{ascending:false});
-  const list=vouchers||[];
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/vouchers?redeemed_by_business_id=eq.${curBusiness.id}&status=eq.redeemed&order=redeemed_at.desc&select=*`,{headers});
+  const list=await res.json();
+  const vouchers=Array.isArray(list)?list:[];
   document.getElementById('bd-vou-list').innerHTML=list.length
     ?list.map(v=>`
       <div style="display:flex;justify-content:space-between;align-items:center;padding:9px 0;border-bottom:1px solid #f5f5f5;">
@@ -1586,7 +1624,8 @@ async function changePIN(){
   const newPin=document.getElementById('bd-new-pin').value;
   if(!/^\d{4}$/.test(newPin)){showToast('PIN must be exactly 4 digits');return;}
   showLoading('Updating PIN...');
-  await sb.from('businesses').update({pin:newPin}).eq('id',curBusiness.id);
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/businesses?id=eq.${curBusiness.id}`,{method:'PATCH',headers,body:JSON.stringify({pin:newPin})});
   curBusiness.pin=newPin;
   hideLoading();showToast('PIN updated ✓');
 }
@@ -1598,18 +1637,8 @@ async function requestRateChange(){
   if(parseInt(rate)===curBusiness.earn_rate){showToast('That\'s already your current rate');return;}
   // Store as an application note — in production this would create a rate change request record
   showLoading('Submitting request...');
-  await sb.from('applications').insert({
-    business_name:curBusiness.name+' — Rate Change Request',
-    category:'Rate change',
-    address:curBusiness.address||'',
-    owner_name:curBusiness.owner_name||curBusiness.name,
-    email:curBusiness.email,
-    billing_email:curBusiness.billing_email||curBusiness.email,
-    earn_rate:parseInt(rate),
-    status:'pending',
-    phone:null,owner_password:'rate-change-only',
-    logo:null
-  });
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/applications`,{method:'POST',headers,body:JSON.stringify({business_name:curBusiness.name+' — Rate Change Request',category:'Rate change',address:curBusiness.address||'',owner_name:curBusiness.owner_name||curBusiness.name,email:curBusiness.email,billing_email:curBusiness.billing_email||curBusiness.email,earn_rate:parseInt(rate),status:'pending',phone:null,owner_password:'rate-change-only',logo:null})});
   hideLoading();
   showToast('Rate change request submitted ✓');
   document.getElementById('bd-rate-reason').value='';
@@ -1742,14 +1771,9 @@ async function approveApp(id){
   const rateEl=document.getElementById('rate-'+id);
   const finalRate=rateEl?parseInt(rateEl.value):(app.earn_rate||10);
   showLoading('Approving...');
-  await sb.from('businesses').insert({
-    name:app.business_name,category:app.category,address:app.address,
-    owner_name:app.owner_name,email:app.email,billing_email:app.billing_email,
-    earn_rate:finalRate,billing_status:'invoiced',status:'active',
-    pin:'1234',password_hash:app.owner_password||'changeme123',
-    phone:app.phone||null,logo:app.logo||null
-  });
-  await sb.from('applications').update({status:'approved',earn_rate:finalRate}).eq('id',id);
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/businesses`,{method:'POST',headers,body:JSON.stringify({name:app.business_name,category:app.category,address:app.address,owner_name:app.owner_name,email:app.email,billing_email:app.billing_email,earn_rate:finalRate,billing_status:'invoiced',status:'active',pin:'1234',password_hash:app.owner_password||'changeme123',phone:app.phone||null,logo:app.logo||null})});
+  await fetch(`${SUPABASE_URL}/rest/v1/applications?id=eq.${id}`,{method:'PATCH',headers,body:JSON.stringify({status:'approved',earn_rate:finalRate})});
   app.status='approved';app.earn_rate=finalRate;
   hideLoading();
   showToast('Approved ✓ · 1pt per R'+finalRate);
@@ -1786,7 +1810,7 @@ www.localrewardswc.co.za`
 
 async function rejectApp(id){
   showLoading('Rejecting...');
-  await sb.from('applications').update({status:'rejected'}).eq('id',id);
+  await fetch(`${SUPABASE_URL}/rest/v1/applications?id=eq.${id}`,{method:'PATCH',headers,body:JSON.stringify({status:'rejected'})});
   const app=(window._apps||[]).find(a=>a.id===id);if(app)app.status='rejected';
   hideLoading();showToast('Application declined');
   renderAdminApps();
@@ -1848,7 +1872,8 @@ async function toggleBizStatus(id,currentStatus){
   const action=newStatus==='suspended'?'Suspend':'Reinstate';
   if(!confirm(`${action} this business? ${newStatus==='suspended'?'They will no longer appear in the customer app.':''}`))return;
   showLoading((newStatus==='suspended'?'Suspending':'Reinstating')+'...');
-  await sb.from('businesses').update({status:newStatus}).eq('id',id);
+  const hh={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/businesses?id=eq.${id}`,{method:'PATCH',headers:hh,body:JSON.stringify({status:newStatus})});
   // Refresh admin data
   await loadAdminData();
   hideLoading();
@@ -1976,11 +2001,14 @@ async function submitBizApp(){
   if(logoFile){
     logoB64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(logoFile);});
   }
-  const {data,error}=await sb.from('applications').insert({
-    business_name:name,category:cat,address:addr,owner_name:owner,
-    email,billing_email:be,earn_rate:rate,status:'pending',
-    phone,owner_password:pass,logo:logoB64
-  }).select().single();
+  const appHeaders={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=representation'};
+  const appRes=await fetch(`${SUPABASE_URL}/rest/v1/applications`,{
+    method:'POST',headers:appHeaders,
+    body:JSON.stringify({business_name:name,category:cat,address:addr,owner_name:owner,email,billing_email:be,earn_rate:rate,status:'pending',phone,owner_password:pass,logo:logoB64})
+  });
+  const appData=await appRes.json();
+  const data=Array.isArray(appData)?appData[0]:appData;
+  const error=!appRes.ok;
   hideLoading();
   if(error){err.textContent='Submission failed. Please try again.';return;}
   document.getElementById('rb-ref').textContent='APP-'+data.id.slice(0,8).toUpperCase();
