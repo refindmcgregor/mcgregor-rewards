@@ -1364,18 +1364,29 @@ async function rejectApp(id){
 function renderAdminBiz(businesses){
   document.getElementById('ad-biz-list').innerHTML=(businesses||[]).length
     ?(businesses||[]).map(b=>`
-    <div style="display:flex;justify-content:space-between;align-items:center;padding:10px 0;border-bottom:1px solid #f5f5f5;gap:10px;">
-      <div style="flex:1;min-width:0;">
-        <div style="font-size:12px;font-weight:600;">${b.name}</div>
-        <div style="font-size:10px;color:#aaa;">${b.category||''} · 1 pt per R${b.earn_rate||10}</div>
-        <div style="font-size:10px;margin-top:2px;color:${b.billing_status==='paid'?'#2D5016':'#e74c3c'};font-weight:600;">${b.billing_status||'unpaid'}</div>
+    <div style="border:1px solid #f0f0f0;border-radius:12px;padding:12px;margin-bottom:8px;">
+      <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:10px;">
+        <div style="flex:1;min-width:0;">
+          <div style="font-size:12px;font-weight:600;">${b.name}</div>
+          <div style="font-size:10px;color:#aaa;">${b.category||''}</div>
+          <div style="font-size:10px;margin-top:2px;color:${b.billing_status==='paid'?'#2D5016':'#e74c3c'};font-weight:600;">${b.billing_status||'unpaid'}</div>
+        </div>
+        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:${b.status==='active'?'#EAF3DE':'#fde8e8'};color:${b.status==='active'?'#2D5016':'#c0392b'};flex-shrink:0;">${b.status==='active'?'Active':'Suspended'}</span>
       </div>
-      <div style="display:flex;flex-direction:column;align-items:flex-end;gap:6px;">
-        <span style="font-size:10px;font-weight:700;padding:3px 8px;border-radius:100px;background:${b.status==='active'?'#EAF3DE':'#fde8e8'};color:${b.status==='active'?'#2D5016':'#c0392b'};">${b.status==='active'?'Active':'Suspended'}</span>
-        <div style="display:flex;gap:5px;">
-          <button onclick="toggleBizStatus('${b.id}','${b.status}')" style="font-size:10px;font-weight:600;padding:4px 8px;border-radius:100px;border:1px solid ${b.status==='active'?'#e74c3c':'#2D5016'};background:none;color:${b.status==='active'?'#e74c3c':'#2D5016'};cursor:pointer;">
-            ${b.status==='active'?'Suspend':'Reinstate'}
-          </button>
+      <div style="display:flex;align-items:center;gap:8px;margin-top:10px;padding-top:8px;border-top:1px solid #f5f5f5;">
+        <span style="font-size:10px;color:#666;font-weight:600;">Earn rate:</span>
+        <select id="er-${b.id}" style="font-size:10px;padding:3px 6px;border-radius:6px;border:1px solid #ddd;cursor:pointer;">
+          <option value="5" ${b.earn_rate==5?'selected':''}>1pt per R5</option>
+          <option value="7" ${b.earn_rate==7?'selected':''}>1pt per R7</option>
+          <option value="10" ${b.earn_rate==10?'selected':''}>1pt per R10</option>
+          <option value="15" ${b.earn_rate==15?'selected':''}>1pt per R15</option>
+          <option value="20" ${b.earn_rate==20?'selected':''}>1pt per R20</option>
+          <option value="25" ${b.earn_rate==25?'selected':''}>1pt per R25</option>
+          <option value="50" ${b.earn_rate==50?'selected':''}>1pt per R50</option>
+        </select>
+        <button onclick="updateEarnRate('${b.id}')" style="font-size:10px;font-weight:600;padding:3px 8px;border-radius:100px;border:1px solid #2D5016;background:#EAF3DE;color:#2D5016;cursor:pointer;">Save</button>
+        <div style="margin-left:auto;display:flex;gap:5px;">
+          <button onclick="toggleBizStatus('${b.id}','${b.status}')" style="font-size:10px;font-weight:600;padding:4px 8px;border-radius:100px;border:1px solid ${b.status==='active'?'#e74c3c':'#2D5016'};background:none;color:${b.status==='active'?'#e74c3c':'#2D5016'};cursor:pointer;">${b.status==='active'?'Suspend':'Reinstate'}</button>
           <button onclick="deleteBusiness('${b.id}','${b.name.replace(/'/g,"\\'")}') " style="font-size:10px;font-weight:600;padding:4px 8px;border-radius:100px;border:1px solid #e74c3c;background:#e74c3c;color:white;cursor:pointer;">Delete</button>
         </div>
       </div>
@@ -1383,13 +1394,19 @@ function renderAdminBiz(businesses){
     :'<div style="font-size:12px;color:#aaa;padding:8px 0;">No businesses yet.</div>';
 }
 
-async function deleteBusiness(id, name){
-  if(!confirm(`Permanently delete ${name}? This cannot be undone.`))return;
-  showLoading('Deleting business...');
-  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
-  await fetch(`${SUPABASE_URL}/rest/v1/businesses?id=eq.${id}`,{method:'DELETE',headers});
+async function updateEarnRate(id){
+  const rateEl=document.getElementById('er-'+id);
+  if(!rateEl)return;
+  const rate=parseInt(rateEl.value);
+  showLoading('Updating earn rate...');
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/businesses?id=eq.${id}`,{
+    method:'PATCH',
+    headers,
+    body:JSON.stringify({earn_rate:rate})
+  });
   hideLoading();
-  showToast(name+' deleted ✓');
+  showToast('Earn rate updated to 1pt per R'+rate+' ✓');
   await loadAdminData();
   adTab('businesses');
 }
@@ -1421,6 +1438,17 @@ function renderAdminMembers(members){
       </div>
     </div>`).join('')
     :'<div style="font-size:12px;color:#aaa;padding:8px 0;">No members yet.</div>';
+}
+
+async function deleteBusiness(id, name){
+  if(!confirm(`Permanently delete ${name}? This cannot be undone.`))return;
+  showLoading('Deleting business...');
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+  await fetch(`${SUPABASE_URL}/rest/v1/businesses?id=eq.${id}`,{method:'DELETE',headers});
+  hideLoading();
+  showToast(name+' deleted ✓');
+  await loadAdminData();
+  adTab('businesses');
 }
 
 async function deleteMember(id, name){
