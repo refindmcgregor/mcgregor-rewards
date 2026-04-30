@@ -252,7 +252,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
           <svg width="28" height="28" viewBox="0 0 28 28" fill="none"><circle cx="14" cy="10" r="5" stroke="white" stroke-width="1.8" fill="none"/><path d="M4 26Q4 19 14 19Q24 19 24 26" stroke="white" stroke-width="1.8" fill="none" stroke-linecap="round"/></svg>
         </div>
         <div class="portal-name">Customer App</div>
-        <div class="portal-desc">Earn points &amp; spend McGregor Rands at any business</div>
+        <div class="portal-desc">Earn points &amp; spend Breede Rewards at any business</div>
         <div class="portal-arrow">→</div>
       </div>
       <div class="portal-card business" onclick="showView('v-biz-login')">
@@ -354,8 +354,8 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
             <div style="font-size:18px;font-weight:700;color:#1a1a1a;" id="c-wallet-pts">0</div>
           </div>
           <div style="flex:1;background:rgba(255,255,255,.6);border-radius:10px;padding:8px 10px;">
-            <div style="font-size:9px;color:#888;margin-bottom:2px;">McGregor Rands</div>
-            <div style="font-size:18px;font-weight:700;color:#2D5016;" id="c-wallet">ℳ 0</div>
+            <div style="font-size:9px;color:#888;margin-bottom:2px;">Breede Rewards</div>
+            <div style="font-size:18px;font-weight:700;color:#2D5016;" id="c-wallet">ℬ 0</div>
           </div>
         </div>
         <div style="font-size:9px;color:#4A7C23;margin-top:6px;">Valid at all participating businesses · unused Rands roll back to points after 6 months</div>
@@ -368,9 +368,9 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div id="biz-cats" style="display:flex;gap:6px;overflow-x:auto;padding-bottom:6px;margin-bottom:8px;scrollbar-width:none;"></div>
       <div class="biz-grid" id="c-biz-grid"></div>
       <div id="biz-empty" style="display:none;text-align:center;padding:18px 0;font-size:12px;color:#aaa;">No businesses found · <span style="color:#4A7C23;cursor:pointer;" onclick="clearBizSearch()">Clear search</span></div>
-      <div class="sec" style="text-align:left;margin-top:4px;">Convert to McGregor Rands</div>
+      <div class="sec" style="text-align:left;margin-top:4px;">Convert to Breede Rewards</div>
       <div class="vo-grid" id="c-vopts"></div>
-      <button class="btn-primary" id="c-conv-btn" disabled onclick="goConvert()">Convert points → ℳ</button>
+      <button class="btn-primary" id="c-conv-btn" disabled onclick="goConvert()">Convert points → ℬ</button>
     </div>
 
     <!-- EARN -->
@@ -425,7 +425,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div style="font-size:16px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Confirm conversion</div>
       <div style="font-size:11px;color:#888;margin-bottom:20px;">This cannot be undone</div>
       <div style="background:#EAF3DE;border-radius:14px;padding:16px;margin-bottom:16px;">
-        <div style="font-size:32px;font-weight:800;color:#2D5016;" id="conf-val">ℳ 50</div>
+        <div style="font-size:32px;font-weight:800;color:#2D5016;" id="conf-val">ℬ 50</div>
         <div style="font-size:11px;color:#4A7C23;margin-top:4px;" id="conf-pts">500 points</div>
       </div>
       <button class="btn-primary" onclick="doConvert()">Confirm</button>
@@ -440,17 +440,17 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
           <svg width="26" height="26" viewBox="0 0 26 26" fill="none"><rect x="2" y="8" width="22" height="14" rx="2" stroke="#4A7C23" stroke-width="1.6" fill="none"/><path d="M8 8V6a5 5 0 0 1 10 0v2" stroke="#4A7C23" stroke-width="1.6" fill="none" stroke-linecap="round"/><line x1="2" y1="14" x2="24" y2="14" stroke="#4A7C23" stroke-width="1.2" stroke-dasharray="3 2"/></svg>
         </div>
         <div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">No vouchers yet</div>
-        <div style="font-size:12px;color:#888;line-height:1.7;margin-bottom:18px;">Earn points at any participating business then convert them to McGregor Rands here.</div>
+        <div style="font-size:12px;color:#888;line-height:1.7;margin-bottom:18px;">Earn points at any participating business then convert them to Breede Rewards here.</div>
         <button class="btn-primary" onclick="appTab('home')">Earn points →</button>
       </div>
       <div id="ps-voucher-active">
         <div class="vou-display">
           <div class="vd-logo">Breede River Valley Rewards</div>
-          <div class="vd-val" id="vd-val">ℳ 50</div>
-          <div class="vd-sub">McGregor Rands · no minimum spend</div>
+          <div class="vd-val" id="vd-val">ℬ 50</div>
+          <div class="vd-sub">Breede Rewards · no minimum spend</div>
           <div style="background:white;border-radius:12px;padding:16px 12px;margin:10px auto;display:inline-block;min-width:180px;">
             <div style="font-size:10px;color:#aaa;letter-spacing:1px;text-transform:uppercase;margin-bottom:6px;">Voucher code</div>
-            <div class="vd-code" id="vd-code">MGR-4X7K</div>
+            <div class="vd-code" id="vd-code">BRV-4X7K</div>
             <div style="font-size:9px;color:#aaa;margin-top:6px;">Show this to the cashier</div>
           </div>
           <div class="vd-exp" id="vd-exp">Expires · rolls back if unused</div>
@@ -468,7 +468,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div style="font-size:11px;color:#888;margin-bottom:16px;" id="p-email">email</div>
       <div style="display:grid;grid-template-columns:1fr 1fr;gap:10px;margin-bottom:16px;">
         <div style="background:#EAF3DE;border-radius:12px;padding:12px;"><div style="font-size:20px;font-weight:800;color:#2D5016;" id="p-pts-s">0</div><div style="font-size:10px;color:#4A7C23;">points</div></div>
-        <div style="background:#EAF3DE;border-radius:12px;padding:12px;"><div style="font-size:20px;font-weight:800;color:#2D5016;" id="p-wal-s">ℳ 0</div><div style="font-size:10px;color:#4A7C23;">McGregor Rands</div></div>
+        <div style="background:#EAF3DE;border-radius:12px;padding:12px;"><div style="font-size:20px;font-weight:800;color:#2D5016;" id="p-wal-s">ℬ 0</div><div style="font-size:10px;color:#4A7C23;">Breede Rewards</div></div>
       </div>
       <div class="sec" style="text-align:left;">Member tiers</div>
       <div class="tier-row" style="background:#faf9f7;border:1px solid #e8e4dc;"><span style="font-size:16px;">🥉</span><div style="flex:1;text-align:left;"><div style="font-size:11px;font-weight:600;">Bronze</div><div style="font-size:9px;color:#999;">0–499 pts</div></div></div>
@@ -477,10 +477,20 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="tier-row" style="background:#faf9f7;border:1px solid #e8e4dc;"><span style="font-size:16px;">💎</span><div style="flex:1;text-align:left;"><div style="font-size:11px;font-weight:600;">Valley Legend · 2× points</div><div style="font-size:9px;color:#999;">5 000+ pts + exclusive perks</div></div></div>
     </div>
 
+    <!-- EVENTS -->
+    <div id="ps-events" class="ps" style="padding:14px;">
+      <div class="sec" style="text-align:left;">Upcoming Events & Specials</div>
+      <div id="c-events-list"><div style="font-size:12px;color:#aaa;padding:8px 0;text-align:center;">Loading events...</div></div>
+    </div>
+
     <div class="app-tabs">
       <div class="at active" id="at-home" onclick="appTab('home')">
         <div class="at-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7" stroke-linejoin="round"><path d="M2 9.5L10 3L18 9.5V18H13V13H7V18H2Z"/></svg></div>
         <span>Home</span>
+      </div>
+      <div class="at" id="at-events" onclick="appTab('events')">
+        <div class="at-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="2" y="3" width="16" height="15" rx="2"/><path d="M6 1v4M14 1v4M2 8h16" stroke-linecap="round"/></svg></div>
+        <span>Events</span>
       </div>
       <div class="at" id="at-wallet" onclick="appTab('voucher')">
         <div class="at-icon"><svg width="22" height="22" viewBox="0 0 20 20" fill="none" stroke="currentColor" stroke-width="1.7"><rect x="1.5" y="5" width="17" height="12" rx="2"/><path d="M1.5 9.5H18.5" stroke-width="1.4"/><circle cx="14.5" cy="13" r="1.8" fill="currentColor" stroke="none"/></svg></div>
@@ -529,9 +539,10 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
     </div>
     <div class="anav">
       <div class="antab active" id="bdt-overview" onclick="bdTab('overview')">Overview</div>
-      <div class="antab" id="bdt-redeem" onclick="bdTab('redeem')">Redeem ℳ</div>
+      <div class="antab" id="bdt-redeem" onclick="bdTab('redeem')">Redeem ℬ</div>
       <div class="antab" id="bdt-transactions" onclick="bdTab('transactions')">Transactions</div>
       <div class="antab" id="bdt-vouchers" onclick="bdTab('vouchers')">Vouchers</div>
+      <div class="antab" id="bdt-events" onclick="bdTab('events')">Events</div>
       <div class="antab" id="bdt-settings" onclick="bdTab('settings')">Settings</div>
     </div>
 
@@ -539,7 +550,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="stat-grid">
         <div class="stat-box"><div class="stat-val" id="bd-members">0</div><div class="stat-lbl">Total members</div></div>
         <div class="stat-box"><div class="stat-val" id="bd-pts">0</div><div class="stat-lbl">Points issued</div></div>
-        <div class="stat-box"><div class="stat-val" id="bd-mgr">ℳ0</div><div class="stat-lbl">Rands redeemed</div></div>
+        <div class="stat-box"><div class="stat-val" id="bd-brv">ℬ0</div><div class="stat-lbl">Rands redeemed</div></div>
         <div class="stat-box"><div class="stat-val" id="bd-txcount">0</div><div class="stat-lbl">Transactions</div></div>
       </div>
       <div class="sec">Recent transactions</div>
@@ -551,7 +562,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="fg">
         <div class="fl">Voucher code</div>
         <div style="display:flex;gap:8px;">
-          <input id="bd-vcode" placeholder="MGR-XXXX" style="font-family:'Courier New',monospace;font-size:16px;font-weight:700;letter-spacing:2px;flex:1;" maxlength="8" oninput="fmtVoucherInput(this)"/>
+          <input id="bd-vcode" placeholder="BRV-XXXX" style="font-family:'Courier New',monospace;font-size:16px;font-weight:700;letter-spacing:2px;flex:1;" maxlength="8" oninput="fmtVoucherInput(this)"/>
           <button onclick="bdLookup()" style="background:#1B5E20;color:white;border:none;border-radius:8px;padding:0 16px;font-size:13px;font-weight:600;cursor:pointer;white-space:nowrap;">Look up</button>
         </div>
       </div>
@@ -567,7 +578,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div id="bd-redeem-success" style="display:none;text-align:center;padding:16px 0;">
         <div class="success-icon" style="margin:0 auto 10px;"><svg width="26" height="26" viewBox="0 0 26 26" fill="none"><path d="M5 13L10.5 18.5L21 8" stroke="#2D5016" stroke-width="2.2" fill="none" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
         <div style="font-size:14px;font-weight:700;color:#1a1a1a;margin-bottom:4px;">Voucher accepted!</div>
-        <div style="font-size:12px;color:#666;" id="bd-success-label">ℳ 50 redeemed</div>
+        <div style="font-size:12px;color:#666;" id="bd-success-label">ℬ 50 redeemed</div>
         <button onclick="bdResetRedeem()" style="margin-top:12px;background:#1B5E20;color:white;border:none;border-radius:100px;padding:8px 20px;font-size:12px;font-weight:600;cursor:pointer;">Redeem another</button>
       </div>
     </div>
@@ -578,6 +589,45 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
 
     <div id="bd-vouchers" class="ascr" style="display:none;">
       <div id="bd-vou-list"><div style="font-size:12px;color:#aaa;padding:8px 0;">No vouchers redeemed yet.</div></div>
+    </div>
+
+    <div id="bd-events" class="ascr" style="display:none;">
+      <div style="font-size:11px;color:#666;margin-bottom:12px;line-height:1.6;">Submit events and specials for approval. They appear in the customer app once approved — completely free.</div>
+      <div class="sec">Submit new event / special</div>
+      <div class="fg"><div class="fl">Title *</div><input id="ev-title" placeholder="e.g. Wine Tasting Evening"/></div>
+      <div class="fg">
+        <div class="fl">Category *</div>
+        <select id="ev-cat">
+          <option value="">Select...</option>
+          <option>Event</option>
+          <option>Special</option>
+          <option>Workshop</option>
+          <option>Market</option>
+          <option>Live music</option>
+          <option>Food & drink</option>
+          <option>Other</option>
+        </select>
+      </div>
+      <div class="row2">
+        <div class="fg"><div class="fl">Date *</div><input id="ev-date" type="date"/></div>
+        <div class="fg"><div class="fl">Time</div><input id="ev-time" placeholder="e.g. 18:00"/></div>
+      </div>
+      <div class="fg"><div class="fl">Price</div><input id="ev-price" placeholder="e.g. R150pp or Free"/></div>
+      <div class="fg"><div class="fl">Description *</div><textarea id="ev-desc" placeholder="Tell people what to expect..." style="height:80px;resize:none;width:100%;border:1px solid #e0dbd0;border-radius:9px;padding:10px 12px;font-size:13px;outline:none;background:#faf9f7;font-family:inherit;"></textarea></div>
+      <div class="fg">
+        <div class="fl">Image <span style="color:#aaa;font-weight:400;">(optional)</span></div>
+        <label style="display:flex;align-items:center;gap:10px;border:1.5px dashed #c8d8b0;border-radius:10px;padding:10px 12px;cursor:pointer;background:#fafaf8;">
+          <div style="width:44px;height:44px;border-radius:8px;background:#EAF3DE;display:flex;align-items:center;justify-content:center;flex-shrink:0;" id="ev-img-preview">
+            <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="#4A7C23" stroke-width="1.4" fill="none"/><circle cx="7" cy="9" r="1.5" fill="#4A7C23"/><path d="M2 14l4-4 3 3 3-3 4 4" stroke="#4A7C23" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>
+          </div>
+          <div><div style="font-size:12px;font-weight:600;color:#2D5016;">Tap to upload image</div><div style="font-size:10px;color:#aaa;margin-top:2px;">PNG or JPG · max 2MB</div></div>
+          <input type="file" id="ev-img" accept="image/*" style="display:none;" onchange="previewEvImg(this)"/>
+        </label>
+      </div>
+      <div class="lerr" id="ev-err"></div>
+      <button onclick="submitEvent()" style="width:100%;background:#1B5E20;color:white;border:none;border-radius:100px;padding:13px;font-size:14px;font-weight:700;cursor:pointer;margin-bottom:20px;">Submit for approval</button>
+      <div class="sec">Your submitted events</div>
+      <div id="bd-events-list"><div style="font-size:12px;color:#aaa;padding:8px 0;">No events submitted yet.</div></div>
     </div>
 
     <div id="bd-settings" class="ascr" style="display:none;">
@@ -644,6 +694,7 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
       <div class="antab" id="adt-businesses" onclick="adTab('businesses')">Businesses</div>
       <div class="antab" id="adt-members" onclick="adTab('members')">Members</div>
       <div class="antab" id="adt-vouchers" onclick="adTab('vouchers')">Vouchers</div>
+      <div class="antab" id="adt-events" onclick="adTab('events')">Events <span id="ev-bdg" style="background:#EF9F27;color:white;border-radius:100px;padding:1px 6px;font-size:9px;display:none;"></span></div>
     </div>
 
     <div id="ad-overview" class="ascr">
@@ -680,6 +731,15 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
         <button onclick="filterAdVouchers('all')" id="avf-all" style="background:#f0f0f0;color:#888;border:none;border-radius:100px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;">All</button>
       </div>
       <div id="ad-vou-list"><div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div></div>
+    </div>
+
+    <div id="ad-events" class="ascr" style="display:none;">
+      <div style="display:flex;gap:6px;margin-bottom:10px;">
+        <button onclick="filterAdEvents('pending')" id="aef-pending" style="background:#EF9F27;color:white;border:none;border-radius:100px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;">Pending</button>
+        <button onclick="filterAdEvents('approved')" id="aef-approved" style="background:#f0f0f0;color:#888;border:none;border-radius:100px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;">Approved</button>
+        <button onclick="filterAdEvents('rejected')" id="aef-rejected" style="background:#f0f0f0;color:#888;border:none;border-radius:100px;padding:5px 12px;font-size:10px;font-weight:600;cursor:pointer;">Rejected</button>
+      </div>
+      <div id="ad-ev-list"><div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div></div>
     </div>
   </div>
 </div>
@@ -787,6 +847,154 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
 </div>
 
 <script>
+// ══ EVENTS ══
+function previewEvImg(input){
+  const file=input.files[0];if(!file)return;
+  if(file.size>2*1024*1024){alert('Image too large. Max 2MB.');input.value='';return;}
+  const reader=new FileReader();
+  reader.onload=e=>{
+    document.getElementById('ev-img-preview').innerHTML=`<img src="${e.target.result}" style="width:44px;height:44px;object-fit:cover;border-radius:6px;"/>`;
+  };
+  reader.readAsDataURL(file);
+}
+
+async function submitEvent(){
+  const title=document.getElementById('ev-title').value.trim();
+  const cat=document.getElementById('ev-cat').value;
+  const date=document.getElementById('ev-date').value;
+  const time=document.getElementById('ev-time').value.trim();
+  const price=document.getElementById('ev-price').value.trim();
+  const desc=document.getElementById('ev-desc').value.trim();
+  const err=document.getElementById('ev-err');
+  if(!title||!cat||!date||!desc){err.textContent='Please fill in title, category, date and description.';return;}
+  err.textContent='';
+  const imgFile=document.getElementById('ev-img').files[0];
+  let imgB64=null;
+  if(imgFile){imgB64=await new Promise(res=>{const r=new FileReader();r.onload=e=>res(e.target.result);r.readAsDataURL(imgFile);});}
+  showLoading('Submitting event...');
+  const {data,error}=await sb.from('events').insert({
+    business_id:curBusiness.id,
+    business_name:curBusiness.name,
+    title,category:cat,event_date:date,
+    event_time:time||null,price:price||null,
+    description:desc,image:imgB64,status:'pending'
+  }).select().single();
+  hideLoading();
+  if(error){err.textContent='Submission failed. Please try again.';return;}
+  showToast('Event submitted for approval ✓');
+  // Reset form
+  document.getElementById('ev-title').value='';
+  document.getElementById('ev-cat').value='';
+  document.getElementById('ev-date').value='';
+  document.getElementById('ev-time').value='';
+  document.getElementById('ev-price').value='';
+  document.getElementById('ev-desc').value='';
+  document.getElementById('ev-img').value='';
+  document.getElementById('ev-img-preview').innerHTML=`<svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="5" width="16" height="12" rx="2" stroke="#4A7C23" stroke-width="1.4" fill="none"/><circle cx="7" cy="9" r="1.5" fill="#4A7C23"/><path d="M2 14l4-4 3 3 3-3 4 4" stroke="#4A7C23" stroke-width="1.3" fill="none" stroke-linejoin="round"/></svg>`;
+  loadBizEvents();
+}
+
+async function loadBizEvents(){
+  const {data}=await sb.from('events').select('*').eq('business_id',curBusiness.id).order('created_at',{ascending:false});
+  const list=data||[];
+  document.getElementById('bd-events-list').innerHTML=list.length
+    ?list.map(e=>`
+      <div style="border:1px solid #f0f0f0;border-radius:12px;padding:10px 12px;margin-bottom:8px;">
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;">
+          <div style="flex:1;">
+            <div style="font-size:12px;font-weight:700;">${e.title}</div>
+            <div style="font-size:10px;color:#aaa;margin-top:2px;">${e.category||''} · ${e.event_date?new Date(e.event_date+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'}):''}</div>
+          </div>
+          <span style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;background:${e.status==='approved'?'#EAF3DE':e.status==='rejected'?'#fde8e8':'#FEF3CD'};color:${e.status==='approved'?'#2D5016':e.status==='rejected'?'#c0392b':'#856404'};flex-shrink:0;">${e.status}</span>
+        </div>
+      </div>`).join('')
+    :'<div style="font-size:12px;color:#aaa;padding:8px 0;">No events submitted yet.</div>';
+}
+
+async function loadCustomerEvents(){
+  document.getElementById('c-events-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;text-align:center;">Loading...</div>';
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY};
+  const today=new Date().toISOString().split('T')[0];
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/events?status=eq.approved&event_date=gte.${today}&order=event_date.asc&select=*`,{headers});
+  const events=await res.json();
+  const list=Array.isArray(events)?events:[];
+  document.getElementById('c-events-list').innerHTML=list.length
+    ?list.map(e=>`
+      <div style="background:white;border:1px solid #e8e4dc;border-radius:16px;overflow:hidden;margin-bottom:12px;">
+        ${e.image?`<img src="${e.image}" style="width:100%;height:140px;object-fit:cover;"/>`:
+          `<div style="width:100%;height:80px;background:linear-gradient(135deg,#2D5016,#4A7C23);display:flex;align-items:center;justify-content:center;"><svg width="32" height="32" viewBox="0 0 20 20" fill="none" stroke="white" stroke-width="1.5"><rect x="2" y="3" width="16" height="15" rx="2"/><path d="M6 1v4M14 1v4M2 8h16" stroke-linecap="round"/></svg></div>`}
+        <div style="padding:12px 14px;">
+          <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
+            <div style="font-size:14px;font-weight:700;color:#1a1a1a;">${e.title}</div>
+            ${e.price?`<span style="font-size:10px;font-weight:700;color:#2D5016;background:#EAF3DE;padding:3px 8px;border-radius:100px;flex-shrink:0;">${e.price}</span>`:''}
+          </div>
+          <div style="font-size:10px;color:#4A7C23;font-weight:600;margin-bottom:4px;">${e.business_name||''} · ${e.category||''}</div>
+          <div style="font-size:11px;color:#888;margin-bottom:6px;">📅 ${e.event_date?new Date(e.event_date+'T12:00:00').toLocaleDateString('en-ZA',{weekday:'short',day:'numeric',month:'long'}):''} ${e.event_time?'· '+e.event_time:''}</div>
+          <div style="font-size:12px;color:#555;line-height:1.5;">${e.description||''}</div>
+        </div>
+      </div>`).join('')
+    :'<div style="text-align:center;padding:30px 16px;"><div style="font-size:15px;font-weight:700;color:#1a1a1a;margin-bottom:6px;">No upcoming events</div><div style="font-size:12px;color:#888;">Check back soon for events and specials from local businesses.</div></div>';
+}
+
+// ══ ADMIN EVENTS ══
+function filterAdEvents(f){
+  window._adEventFilter=f;
+  ['pending','approved','rejected'].forEach(s=>{
+    const btn=document.getElementById('aef-'+s);
+    if(btn){btn.style.background=s===f?'#EF9F27':'#f0f0f0';btn.style.color=s===f?'white':'#888';}
+  });
+  loadAdminEvents(f);
+}
+
+async function loadAdminEvents(filter='pending'){
+  document.getElementById('ad-ev-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+  const res=await fetch(`${SUPABASE_URL}/rest/v1/events?status=eq.${filter}&order=created_at.desc&select=*`,{headers});
+  const events=await res.json();
+  const list=Array.isArray(events)?events:[];
+  // Update badge
+  const pendingRes=await fetch(`${SUPABASE_URL}/rest/v1/events?status=eq.pending&select=id`,{headers});
+  const pending=await pendingRes.json();
+  const bdg=document.getElementById('ev-bdg');
+  if(bdg){bdg.textContent=(pending||[]).length;bdg.style.display=(pending||[]).length?'inline':'none';}
+  document.getElementById('ad-ev-list').innerHTML=list.length
+    ?list.map(e=>`
+      <div style="border:1px solid #f0f0f0;border-radius:12px;padding:12px;margin-bottom:8px;">
+        ${e.image?`<img src="${e.image}" style="width:100%;height:100px;object-fit:cover;border-radius:8px;margin-bottom:8px;"/>`:''}
+        <div style="display:flex;justify-content:space-between;align-items:flex-start;gap:8px;margin-bottom:4px;">
+          <div>
+            <div style="font-size:12px;font-weight:700;">${e.title}</div>
+            <div style="font-size:10px;color:#aaa;">${e.business_name||''} · ${e.category||''}</div>
+            <div style="font-size:10px;color:#888;margin-top:2px;">📅 ${e.event_date?new Date(e.event_date+'T12:00:00').toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'}):''} ${e.event_time?'· '+e.event_time:''} ${e.price?'· '+e.price:''}</div>
+            <div style="font-size:11px;color:#555;margin-top:4px;line-height:1.4;">${e.description||''}</div>
+          </div>
+          <span style="font-size:9px;font-weight:700;padding:3px 8px;border-radius:100px;background:${e.status==='approved'?'#EAF3DE':e.status==='rejected'?'#fde8e8':'#FEF3CD'};color:${e.status==='approved'?'#2D5016':e.status==='rejected'?'#c0392b':'#856404'};flex-shrink:0;">${e.status}</span>
+        </div>
+        ${e.status==='pending'?`
+        <div style="display:flex;gap:6px;margin-top:8px;">
+          <button onclick="approveEvent('${e.id}')" class="btn-approve">✓ Approve</button>
+          <button onclick="rejectEvent('${e.id}')" class="btn-reject">✕ Reject</button>
+        </div>`:''}
+      </div>`).join('')
+    :`<div style="font-size:11px;color:#aaa;padding:7px 0;">No ${filter} events.</div>`;
+}
+
+async function approveEvent(id){
+  showLoading('Approving...');
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${id}`,{method:'PATCH',headers,body:JSON.stringify({status:'approved'})});
+  hideLoading();showToast('Event approved ✓');
+  loadAdminEvents(window._adEventFilter||'pending');
+}
+
+async function rejectEvent(id){
+  showLoading('Rejecting...');
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json','Prefer':'return=minimal'};
+  await fetch(`${SUPABASE_URL}/rest/v1/events?id=eq.${id}`,{method:'PATCH',headers,body:JSON.stringify({status:'rejected'})});
+  hideLoading();showToast('Event rejected');
+  loadAdminEvents(window._adEventFilter||'pending');
+}
+
 // ══ INSTALL BANNER ══
 let deferredPrompt=null;
 function initInstallBanner(){
@@ -946,7 +1154,7 @@ function showToast(msg,ms=2500){
 }
 function genCode(){
   const c='ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
-  return 'MGR-'+Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');
+  return 'BRV-'+Array.from({length:4},()=>c[Math.floor(Math.random()*c.length)]).join('');
 }
 function getTier(pts){
   if(pts>=5000)return'Valley Legend';
@@ -1033,9 +1241,9 @@ function updateHero(){
   const wallet=curMember.wallet_balance||0;
   document.getElementById('c-pts').textContent=fmt(pts);
   document.getElementById('c-wallet-pts').textContent=fmt(pts);
-  document.getElementById('c-wallet').textContent='ℳ '+fmt(wallet);
+  document.getElementById('c-wallet').textContent='ℬ '+fmt(wallet);
   document.getElementById('p-pts-s').textContent=fmt(pts);
-  document.getElementById('p-wal-s').textContent='ℳ '+fmt(wallet);
+  document.getElementById('p-wal-s').textContent='ℬ '+fmt(wallet);
   document.getElementById('c-tier').textContent=getTier(pts);
   // Progress to next tier
   let pct=0,togo='';
@@ -1172,7 +1380,7 @@ function renderVOpts(){
   ];
   document.getElementById('c-vopts').innerHTML=opts.map(o=>`
     <div class="vo${selV.val===o.val?' sel':''}" onclick="selVoucher(${o.val},${o.pts})">
-      <div class="vo-val">ℳ${o.val}</div>
+      <div class="vo-val">ℬ${o.val}</div>
       <div class="vo-pts">${fmt(o.pts)} pts</div>
     </div>`).join('');
   const btn=document.getElementById('c-conv-btn');
@@ -1181,7 +1389,7 @@ function renderVOpts(){
 function selVoucher(val,pts){selV={val,pts};renderVOpts();}
 function goConvert(){
   if(!selV.val)return;
-  document.getElementById('conf-val').textContent='ℳ '+selV.val;
+  document.getElementById('conf-val').textContent='ℬ '+selV.val;
   document.getElementById('conf-pts').textContent=fmt(selV.pts)+' points';
   appTab('confirm');
 }
@@ -1194,7 +1402,7 @@ async function doConvert(){
   const newWallet=(curMember.wallet_balance||0)+selV.val;
   // Save voucher
   const {data:voucher}=await sb.from('vouchers').insert({
-    member_id:curMember.id,value_mgr:selV.val,points_cost:selV.pts,
+    member_id:curMember.id,value_brv:selV.val,points_cost:selV.pts,
     code,status:'active',expires_at:exp.toISOString()
   }).select().single();
   // Update member
@@ -1203,7 +1411,7 @@ async function doConvert(){
   hideLoading();
   // Show voucher
   const bizNames=bizList.map(b=>b.name).join(' · ')||'All participating businesses';
-  document.getElementById('vd-val').textContent='ℳ '+selV.val;
+  document.getElementById('vd-val').textContent='ℬ '+selV.val;
   document.getElementById('vd-code').textContent=code;
   document.getElementById('vd-exp').textContent='Expires '+exp.toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric'})+' · rolls back if unused';
   document.getElementById('vd-biz-list').textContent=bizNames;
@@ -1214,17 +1422,18 @@ async function doConvert(){
 }
 
 function appTab(t){
-  ['home','earn','pin','earned','confirm','voucher','profile'].forEach(s=>{
+  ['home','earn','pin','earned','confirm','voucher','profile','events'].forEach(s=>{
     const el=document.getElementById('ps-'+s);if(el)el.classList.toggle('active',s===t);
   });
-  ['home','wallet','profile'].forEach(s=>{
+  ['home','events','wallet','profile'].forEach(s=>{
     const el=document.getElementById('at-'+s);if(el)el.classList.toggle('active',s===t);
   });
   if(t==='voucher'){
-    const hasVoucher=document.getElementById('vd-code').textContent.startsWith('MGR-')&&document.getElementById('vd-val').textContent!=='ℳ 50'||window._activeVoucher;
+    const hasVoucher=document.getElementById('vd-code').textContent.startsWith('BRV-')&&document.getElementById('vd-val').textContent!=='ℬ 50'||window._activeVoucher;
     document.getElementById('ps-voucher-empty').style.display=hasVoucher?'none':'block';
     document.getElementById('ps-voucher-active').style.display=hasVoucher?'block':'none';
   }
+  if(t==='events')loadCustomerEvents();
 }
 
 // ══ BUSINESS AUTH ══
@@ -1269,11 +1478,11 @@ async function loadBizStats(){
   const {data:txs}=await sb.from('transactions').select('*').eq('business_id',curBusiness.id);
   const {data:vouchers}=await sb.from('vouchers').select('*').eq('redeemed_by_business_id',curBusiness.id);
   const totalPts=(txs||[]).reduce((a,t)=>a+(t.points_earned||0),0);
-  const totalMgr=(vouchers||[]).reduce((a,v)=>a+(v.value_mgr||0),0);
+  const totalMgr=(vouchers||[]).reduce((a,v)=>a+(v.value_brv||0),0);
   const uniqueMembers=new Set((txs||[]).map(t=>t.member_id)).size;
   document.getElementById('bd-members').textContent=fmt(uniqueMembers);
   document.getElementById('bd-pts').textContent=fmt(totalPts);
-  document.getElementById('bd-mgr').textContent='ℳ'+fmt(totalMgr);
+  document.getElementById('bd-brv').textContent='ℬ'+fmt(totalMgr);
   document.getElementById('bd-txcount').textContent=fmt((txs||[]).length);
   // Recent transactions
   const recent=(txs||[]).slice(-10).reverse();
@@ -1284,11 +1493,12 @@ async function loadBizStats(){
 }
 
 function bdTab(t){
-  ['overview','redeem','transactions','vouchers','settings'].forEach(s=>{
+  ['overview','redeem','transactions','vouchers','events','settings'].forEach(s=>{
     const el=document.getElementById('bd-'+s);if(el)el.style.display=s===t?'block':'none';
     const tab=document.getElementById('bdt-'+s);if(tab)tab.classList.toggle('active',s===t);
   });
   if(t==='vouchers')loadBizVouchers();
+  if(t==='events')loadBizEvents();
 }
 
 // ══ VOUCHER REDEMPTION ══
@@ -1299,7 +1509,7 @@ function fmtVoucherInput(el){
 }
 async function bdLookup(){
   const code=document.getElementById('bd-vcode').value.trim().toUpperCase();
-  if(code.length<8){showToast('Enter a complete code (MGR-XXXX)');return;}
+  if(code.length<8){showToast('Enter a complete code (BRV-XXXX)');return;}
   showLoading('Looking up voucher...');
   const {data,error}=await sb.from('vouchers').select('*').eq('code',code).eq('status','active').single();
   hideLoading();
@@ -1307,7 +1517,7 @@ async function bdLookup(){
   if(error||!data){res.innerHTML='<div style="color:#e74c3c;font-size:12px;padding:8px 0;">❌ Voucher not found or already redeemed.</div>';return;}
   if(new Date(data.expires_at)<new Date()){res.innerHTML='<div style="color:#e74c3c;font-size:12px;padding:8px 0;">❌ This voucher has expired.</div>';return;}
   curVoucher=data;
-  res.innerHTML=`<div style="background:#EAF3DE;border:1px solid #C0DD97;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:12px;color:#2D5016;font-weight:600;">✓ ℳ${data.value_mgr} voucher found — valid</div>`;
+  res.innerHTML=`<div style="background:#EAF3DE;border:1px solid #C0DD97;border-radius:10px;padding:10px 12px;margin:8px 0;font-size:12px;color:#2D5016;font-weight:600;">✓ ℬ${data.value_brv} voucher found — valid</div>`;
   // Setup PIN pad
   document.getElementById('bd-pin-section').style.display='block';
   bdPin='';updBPD();
@@ -1336,12 +1546,12 @@ async function confirmRedeem(){
   // Update member wallet
   const {data:member}=await sb.from('members').select('wallet_balance').eq('id',curVoucher.member_id).single();
   if(member){
-    await sb.from('members').update({wallet_balance:Math.max(0,(member.wallet_balance||0)-curVoucher.value_mgr)}).eq('id',curVoucher.member_id);
+    await sb.from('members').update({wallet_balance:Math.max(0,(member.wallet_balance||0)-curVoucher.value_brv)}).eq('id',curVoucher.member_id);
   }
   hideLoading();
   document.getElementById('bd-lookup-result').innerHTML='';
   document.getElementById('bd-pin-section').style.display='none';
-  document.getElementById('bd-success-label').textContent='ℳ'+curVoucher.value_mgr+' redeemed successfully';
+  document.getElementById('bd-success-label').textContent='ℬ'+curVoucher.value_brv+' redeemed successfully';
   document.getElementById('bd-redeem-success').style.display='block';
   loadBizStats();
 }
@@ -1363,7 +1573,7 @@ async function loadBizVouchers(){
           <div style="font-family:'Courier New',monospace;font-size:13px;font-weight:700;color:#2D5016;">${v.code}</div>
           <div style="font-size:10px;color:#aaa;margin-top:2px;">${v.redeemed_at?new Date(v.redeemed_at).toLocaleDateString('en-ZA',{day:'numeric',month:'short',year:'numeric',hour:'2-digit',minute:'2-digit'}):''}</div>
         </div>
-        <div style="font-size:16px;font-weight:800;color:#2D5016;">ℳ${v.value_mgr}</div>
+        <div style="font-size:16px;font-weight:800;color:#2D5016;">ℬ${v.value_brv}</div>
       </div>`).join('')
     :'<div style="font-size:12px;color:#aaa;padding:8px 0;">No vouchers redeemed yet.</div>';
 }
@@ -1452,7 +1662,7 @@ async function loadAdminData(){
 }
 
 async function adTab(t){
-  ['overview','applications','businesses','members','vouchers'].forEach(s=>{
+  ['overview','applications','businesses','members','vouchers','events'].forEach(s=>{
     const el=document.getElementById('ad-'+s);if(el)el.style.display=s===t?'block':'none';
     const tab=document.getElementById('adt-'+s);if(tab)tab.classList.toggle('active',s===t);
   });
@@ -1468,6 +1678,10 @@ async function adTab(t){
   if(t==='vouchers'){
     window._adVoucherFilter=window._adVoucherFilter||'active';
     loadAdminVouchers(window._adVoucherFilter);
+  }
+  if(t==='events'){
+    window._adEventFilter=window._adEventFilter||'pending';
+    loadAdminEvents(window._adEventFilter);
   }
 }
 
@@ -1702,7 +1916,7 @@ async function loadAdminVouchers(filter='active'){
       <div style="border:1px solid #f0f0f0;border-radius:12px;padding:10px 12px;margin-bottom:7px;">
         <div style="display:flex;justify-content:space-between;align-items:center;margin-bottom:4px;">
           <div style="font-family:'Courier New',monospace;font-size:14px;font-weight:700;color:#2D5016;">${v.code}</div>
-          <div style="font-size:15px;font-weight:800;color:#2D5016;">ℳ${v.value_mgr}</div>
+          <div style="font-size:15px;font-weight:800;color:#2D5016;">ℬ${v.value_brv}</div>
         </div>
         <div style="display:flex;justify-content:space-between;align-items:center;">
           <div>
