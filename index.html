@@ -1251,8 +1251,14 @@ function adTab(t){
     document.getElementById('ad-pts').textContent=window._adminStats.pts;
     document.getElementById('ad-vouchers').textContent=window._adminStats.vouchers;
   }
-  if(t==='businesses')renderAdminBiz(window._businesses||[]);
-  if(t==='members')renderAdminMembers(allMembers||[]);
+  if(t==='businesses'){
+    document.getElementById('ad-biz-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
+    loadAdminData();
+  }
+  if(t==='members'){
+    document.getElementById('ad-mem-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
+    loadAdminData();
+  }
   if(t==='applications')renderAdminApps();
 }
 
