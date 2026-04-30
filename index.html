@@ -1216,6 +1216,8 @@ async function loadAdminData(){
   const businesses=await businessesRes.json();
   const vouchers=await vouchersRes.json();
   const apps=await appsRes.json();
+  console.log('members count:', Array.isArray(members)?members.length:'error');
+  console.log('businesses count:', Array.isArray(businesses)?businesses.length:'error');
   allMembers=Array.isArray(members)?members:[];
   const bizList=Array.isArray(businesses)?businesses:[];
   const appList=Array.isArray(apps)?apps:[];
@@ -1240,7 +1242,7 @@ async function loadAdminData(){
   renderAdminMembers(allMembers);
 }
 
-function adTab(t){
+async function adTab(t){
   ['overview','applications','businesses','members'].forEach(s=>{
     const el=document.getElementById('ad-'+s);if(el)el.style.display=s===t?'block':'none';
     const tab=document.getElementById('adt-'+s);if(tab)tab.classList.toggle('active',s===t);
@@ -1251,15 +1253,9 @@ function adTab(t){
     document.getElementById('ad-pts').textContent=window._adminStats.pts;
     document.getElementById('ad-vouchers').textContent=window._adminStats.vouchers;
   }
-  if(t==='businesses'){
-    document.getElementById('ad-biz-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
-    loadAdminData();
+  if(t==='businesses'||t==='members'||t==='applications'){
+    await loadAdminData();
   }
-  if(t==='members'){
-    document.getElementById('ad-mem-list').innerHTML='<div style="font-size:12px;color:#aaa;padding:8px 0;">Loading...</div>';
-    loadAdminData();
-  }
-  if(t==='applications')renderAdminApps();
 }
 
 function fApps(f){
