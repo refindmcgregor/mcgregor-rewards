@@ -1181,27 +1181,33 @@ async function doAdminLogin(){
 }
 
 async function loadAdminData(){
-  const [{data:members},{data:businesses},{data:transactions},{data:vouchers},{data:apps}]=await Promise.all([
-    sb.from('members').select('*'),
-    sb.from('businesses').select('*'),
-    sb.from('transactions').select('count'),
-    sb.from('vouchers').select('count'),
-    sb.from('applications').select('*').order('created_at',{ascending:false})
+  const headers={'apikey':SUPABASE_KEY,'Authorization':'Bearer '+SUPABASE_KEY,'Content-Type':'application/json'};
+  const [membersRes,businessesRes,txRes,vouchersRes,appsRes]=await Promise.all([
+    fetch(`${SUPABASE_URL}/rest/v1/members?select=*`,{headers}),
+    fetch(`${SUPABASE_URL}/rest/v1/businesses?select=*`,{headers}),
+    fetch(`${SUPABASE_URL}/rest/v1/transactions?select=count`,{headers}),
+    fetch(`${SUPABASE_URL}/rest/v1/vouchers?select=count`,{headers}),
+    fetch(`${SUPABASE_URL}/rest/v1/applications?select=*&order=created_at.desc`,{headers})
   ]);
-  allMembers=members||[];
-  const totalPts=(members||[]).reduce((a,m)=>a+(m.points||0),0);
-  document.getElementById('ad-members').textContent=fmt((members||[]).length);
-  document.getElementById('ad-businesses').textContent=fmt((businesses||[]).filter(b=>b.status==='active').length);
+  const members=await membersRes.json();
+  const businesses=await businessesRes.json();
+  const vouchers=await vouchersRes.json();
+  const apps=await appsRes.json();
+  allMembers=Array.isArray(members)?members:[];
+  const bizList=Array.isArray(businesses)?businesses:[];
+  const appList=Array.isArray(apps)?apps:[];
+  const totalPts=allMembers.reduce((a,m)=>a+(m.points||0),0);
+  document.getElementById('ad-members').textContent=fmt(allMembers.length);
+  document.getElementById('ad-businesses').textContent=fmt(bizList.filter(b=>b.status==='active').length);
   document.getElementById('ad-pts').textContent=fmt(totalPts);
-  document.getElementById('ad-vouchers').textContent=fmt((vouchers||[]).length||(vouchers?.length)||0);
-  // Applications
-  window._apps=apps||[];
-  window._businesses=businesses||[];
-  const pending=(apps||[]).filter(a=>a.status==='pending').length;
+  document.getElementById('ad-vouchers').textContent=fmt(Array.isArray(vouchers)?vouchers.length:0);
+  window._apps=appList;
+  window._businesses=bizList;
+  const pending=appList.filter(a=>a.status==='pending').length;
   const bdg=document.getElementById('app-bdg');
   bdg.textContent=pending;bdg.style.display=pending?'inline':'none';
   renderAdminApps();
-  renderAdminBiz(businesses||[]);
+  renderAdminBiz(bizList);
   renderAdminMembers(allMembers);
 }
 
