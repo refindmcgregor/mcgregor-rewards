@@ -1410,30 +1410,6 @@ async function submitBizApp(){
   document.getElementById('rb-ref').textContent='APP-'+data.id.slice(0,8).toUpperCase();
   document.getElementById('rb-form').style.display='none';
   document.getElementById('rb-success').style.display='block';
-  // Notify Marlene of new application
-  const notifySubject=encodeURIComponent('New Business Application — '+name);
-  const notifyBody=encodeURIComponent(
-`Hi Marlene,
-
-A new business has applied to join Breede River Valley Rewards.
-
-Business name: ${name}
-Category: ${cat}
-Address: ${addr}
-Owner: ${owner}
-Mobile: ${phone}
-Email: ${email}
-Billing email: ${be}
-Proposed earn rate: 1pt per R${rate}
-
-Reference: APP-${data.id.slice(0,8).toUpperCase()}
-
-Log in to the admin portal to review and approve:
-www.localrewardswc.co.za → Admin portal
-
-Breede River Valley Rewards`
-  );
-  window.open(`mailto:marlene@localrewardswc.co.za?subject=${notifySubject}&body=${notifyBody}`,'_blank');
 }
 
 // ══ RESET PASSWORD ══
