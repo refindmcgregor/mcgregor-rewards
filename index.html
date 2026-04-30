@@ -188,6 +188,46 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
   <button class="install-banner-close" onclick="dismissInstall()">✕</button>
 </div>
 
+<!-- ══ iOS INSTALL MODAL ══ -->
+<div id="ios-modal" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.6);z-index:3000;align-items:flex-end;justify-content:center;">
+  <div style="background:white;border-radius:24px 24px 0 0;padding:28px 24px 40px;width:100%;max-width:460px;">
+    <div style="text-align:center;margin-bottom:20px;">
+      <div style="font-size:16px;font-weight:800;color:#1a1a1a;margin-bottom:6px;">Add to Home Screen</div>
+      <div style="font-size:12px;color:#888;line-height:1.6;">Follow these steps in Safari to save the app to your iPhone home screen</div>
+    </div>
+    <div style="display:flex;flex-direction:column;gap:14px;margin-bottom:24px;">
+      <div style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border-radius:14px;padding:14px;">
+        <div style="width:36px;height:36px;background:#EAF3DE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M10 2v10M6 6l4-4 4 4" stroke="#2D5016" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"/><rect x="2" y="13" width="16" height="5" rx="1.5" stroke="#2D5016" stroke-width="1.5" fill="none"/></svg>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a1a1a;">Step 1 — Tap the Share button</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">The Share button is the box with an arrow at the bottom of Safari</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border-radius:14px;padding:14px;">
+        <div style="width:36px;height:36px;background:#EAF3DE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><rect x="2" y="2" width="16" height="16" rx="3" stroke="#2D5016" stroke-width="1.5" fill="none"/><path d="M10 7v6M7 10h6" stroke="#2D5016" stroke-width="1.8" stroke-linecap="round"/></svg>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a1a1a;">Step 2 — Tap "Add to Home Screen"</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">Scroll down in the share menu and tap "Add to Home Screen"</div>
+        </div>
+      </div>
+      <div style="display:flex;align-items:center;gap:14px;background:#f8f8f8;border-radius:14px;padding:14px;">
+        <div style="width:36px;height:36px;background:#EAF3DE;border-radius:10px;display:flex;align-items:center;justify-content:center;flex-shrink:0;">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none"><path d="M4 10l5 5 7-7" stroke="#2D5016" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        </div>
+        <div>
+          <div style="font-size:12px;font-weight:700;color:#1a1a1a;">Step 3 — Tap "Add"</div>
+          <div style="font-size:11px;color:#888;margin-top:2px;">The app icon will appear on your home screen</div>
+        </div>
+      </div>
+    </div>
+    <button onclick="closeIOSModal()" style="width:100%;background:#2D5016;color:white;border:none;border-radius:100px;padding:14px;font-size:14px;font-weight:700;cursor:pointer;">Got it</button>
+  </div>
+</div>
+
 <!-- ══ PORTAL ══ -->
 <div id="v-portal" class="view active">
   <div class="portal-wrap">
@@ -724,25 +764,21 @@ input:focus,select:focus{border-color:#4A7C23;background:white;}
 // ══ INSTALL BANNER ══
 let deferredPrompt=null;
 function initInstallBanner(){
-  // Set logo
   const logoSrc=document.querySelector('.portal-logo img');
   if(logoSrc)document.getElementById('install-logo').src=logoSrc.src;
-  // Don't show if already installed or dismissed recently
   if(localStorage.getItem('install-dismissed'))return;
-  // Listen for beforeinstallprompt (Android Chrome)
   window.addEventListener('beforeinstallprompt',e=>{
     e.preventDefault();
     deferredPrompt=e;
     setTimeout(()=>document.getElementById('install-banner').classList.add('show'),2000);
   });
-  // On iOS show manual instructions banner after 3s
   const isIOS=/iphone|ipad|ipod/i.test(navigator.userAgent)&&!window.navigator.standalone;
   if(isIOS){
     setTimeout(()=>{
       const banner=document.getElementById('install-banner');
-      banner.querySelector('.install-banner-sub').textContent='Tap Share → Add to Home Screen';
-      banner.querySelector('#install-btn').textContent='How?';
-      banner.querySelector('#install-btn').onclick=showIOSInstructions;
+      banner.querySelector('.install-banner-sub').textContent='Save this app to your home screen';
+      banner.querySelector('#install-btn').textContent='How to add';
+      banner.querySelector('#install-btn').onclick=showIOSModal;
       banner.classList.add('show');
     },3000);
   }
@@ -759,9 +795,12 @@ function dismissInstall(){
   document.getElementById('install-banner').classList.remove('show');
   localStorage.setItem('install-dismissed','1');
 }
-function showIOSInstructions(){
-  showToast('Tap the Share icon below, then "Add to Home Screen"',4000);
+function showIOSModal(){
   dismissInstall();
+  document.getElementById('ios-modal').style.display='flex';
+}
+function closeIOSModal(){
+  document.getElementById('ios-modal').style.display='none';
 }
 window.addEventListener('load',initInstallBanner);
 
